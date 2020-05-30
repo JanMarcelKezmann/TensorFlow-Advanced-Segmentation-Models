@@ -13,13 +13,12 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ## Table of Contents
 
-- <a href="https://github.com/JanMarcelKezmann/Keras-Advamced-Segmentation-Models#Installation and Setup">Installation and Setup</a>
-- <a href="">Training Pipeline</a>
-- <a href="">Models and Backbones</a>
-- <a href="">Documentation</a>
-- <a href="">Change Log</a>
-- <a href="">Citing</a>
-- <a href="">References</a>
+ - [Installation and Setup](#installation-and-setup)
+ - [Training Pipeline](#training-pipeline)
+ - [Documentation](#documentation)
+ - [Change Log](#change-log)
+ - [Citing](#citing)
+ - [References](#references)
 
 ## Installation and Setup
 
