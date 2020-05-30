@@ -13,27 +13,17 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ## Table of Contents
 
+- <a href="https://github.com/JanMarcelKezmann/Keras-Advamced-Segmentation-Models#Installation and Setup">Installation and Setup</a>
+- <a href="">Training Pipeline</a>
+- <a href="">Models and Backbones</a>
+- <a href="">Documentation</a>
+- <a href="">Change Log</a>
+- <a href="">Citing</a>
+- <a href="">References</a>
 
-**Backbones**
+## Installation and Setup
 
-    =============  ===== 
-    Type           Names
-    =============  =====
-    VGG            ``'vgg16' 'vgg19'``
-    ResNet         ``'resnet18' 'resnet34' 'resnet50' 'resnet101' 'resnet152'``
-    SE-ResNet      ``'seresnet18' 'seresnet34' 'seresnet50' 'seresnet101' 'seresnet152'``
-    ResNeXt        ``'resnext50' 'resnext101'``
-    SE-ResNeXt     ``'seresnext50' 'seresnext101'``
-    SENet154       ``'senet154'``
-    DenseNet       ``'densenet121' 'densenet169' 'densenet201'`` 
-    Inception      ``'inceptionv3' 'inceptionresnetv2'``
-    MobileNet      ``'mobilenet' 'mobilenetv2'``
-    EfficientNet   ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``
-    =============  =====
-
-    All backbones have weights trained on 2012 ILSVRC ImageNet dataset (``encoder_weights='imagenet'``). 
-
-# Installation
+<p>To get the repository running just check the following requirements.</p>
 
 **Requirements**
 1) Python 3.6
@@ -42,15 +32,88 @@ A Python Library for High-Level Semantic Segmentation Models.
 4) image-classifiers == 1.0.*
 5) efficientnet == 1.0.*
 
+<p>Furthermore just execute the following command to download and install the git repository.</p>
+
 **Source latest version**
 
     $ pip install git+https://github.com/JanMarcelKezmann/Keras-Advamced-Segmentation-Models
 
-# Documentation
+## Training Pipeline
 
-# Change Log
+Please check that both **Tensorflow** and **Keras** are installed on your computer.
 
-# Citing
+To import the library just use the standard python import statement:
+
+    import keras_advanced_segmentation_models as kasm
+      
+Then pick any model backbone from the list below:
+    
+    BACKBONE = "efficientnetb3"
+    preprocess_input = kasm.get_preprocessing(BACKBONE)
+    
+Load the data
+    
+    X_train, y_train, X_val, y_val = get_data(...)
+    
+and preprocees it:
+    
+    X_train = preprocess_input(X_train)
+    y_train = preprocess_input(y_train)
+      
+ Define a Model and compile it with an appropriate loss:
+ 
+    model = kasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
+    model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
+
+Now finally train the model:
+
+    history = model.fit(
+        x=X_train,
+        y=y_train,
+        batch_size=8,
+        epochs=50,
+        validation_data(x_val, y_val)
+    )
+ 
+You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
+For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
+## Models and Backbones
+
+**Models**
+
+- **<a href="https://arxiv.org/pdf/1411.4038.pdf">FCN</a>**
+- **<a href="https://arxiv.org/abs/1505.04597">UNet</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="https://arxiv.org/abs/1707.03718">Linknet</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="https://arxiv.org/pdf/1606.00915.pdf">DeepLab</a>**
+- **<a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>**
+- **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
+    
+**Backbones**
+(For Details see <a href="">here</a.)
+
+|Type         | Names |
+|-------------|-------|
+|**VGG**          | ``'vgg16' 'vgg19'``|
+|**ResNet**       | ``'resnet18' 'resnet34' 'resnet50' 'resnet101' 'resnet152'``|
+|**SE-ResNet**    | ``'seresnet18' 'seresnet34' 'seresnet50' 'seresnet101' 'seresnet152'``|
+|**ResNeXt**      | ``'resnext50' 'resnext101'``|
+|**SE-ResNeXt**   | ``'seresnext50' 'seresnext101'``|
+|**SENet154**     | ``'senet154'``|
+|**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``| 
+|**Inception**    | ``'inceptionv3' 'inceptionresnetv2'``|
+|**MobileNet**    | ``'mobilenet' 'mobilenetv2'``|
+|**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``|
+    
+
+    All backbones have weights trained on 2012 ILSVRC ImageNet dataset (``encoder_weights='imagenet'``). 
+
+## Documentation
+
+## Change Log
+
+## Citing
 
     @misc{Kezmann:2020,
       Author = {Jan-Marcel Kezmann},
@@ -61,12 +124,10 @@ A Python Library for High-Level Semantic Segmentation Models.
       Howpublished = {\url{https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation_Models}}
     } 
     
-# License
+## License
 
 Project is distributed under <a href="https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models/blob/master/LICENSE">MIT License</a>.
 
-# References
+## References
 <p>Thank you for all the papers that made this repository possible and especially thank you Pavel Yakubovskiy's initial segmentation models repository.</p>
 - Pavel Yakubovskiy, Segmentation Models, 2019, GitHub, GitHubRepository, https://github.com/qubvel/segmentation_models
-
-
