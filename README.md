@@ -90,7 +90,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
     
 **Backbones**
-(For Details see <a href="">here</a.)
+(For Details see <a href="">here</a>.)
 
 |Type         | Names |
 |-------------|-------|
