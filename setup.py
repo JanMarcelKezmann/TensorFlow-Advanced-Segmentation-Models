@@ -12,11 +12,11 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'segmentation_models'
+NAME = 'keras_advanced_segmentation_models'
 DESCRIPTION = 'Image segmentation models with pre-trained backbones with Keras.'
-URL = 'https://github.com/qubvel/segmentation_models'
-EMAIL = 'qubvel@gmail.com'
-AUTHOR = 'Pavel Yakubovskiy'
+URL = 'https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models'
+EMAIL = 'j-m.kezmann@t-online.de'
+AUTHOR = 'Jan-Marcel Kezmann'
 REQUIRES_PYTHON = '>=3.0.0'
 VERSION = None
 
