@@ -1,0 +1,5 @@
+keras>=2.2.0
+keras-applications==1.0.8
+image-classifiers==1.0.0
+efficientnet==1.0.0
+tensorflow==1.15.0
