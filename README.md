@@ -35,7 +35,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 **Source latest version**
 
-    $ pip install git+https://github.com/JanMarcelKezmann/Keras-Advamced-Segmentation-Models
+    $ pip install git+https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models
 
 ## Training Pipeline
 
@@ -43,36 +43,49 @@ Please check that both **Tensorflow** and **Keras** are installed on your comput
 
 To import the library just use the standard python import statement:
 
-    import keras_advanced_segmentation_models as kasm
+   
+```python
+import keras_advanced_segmentation_models as kasm
+```
       
 Then pick any model backbone from the list below:
-    
-    BACKBONE = "efficientnetb3"
-    preprocess_input = kasm.get_preprocessing(BACKBONE)
-    
+
+```python
+BACKBONE = "efficientnetb3"
+preprocess_input = kasm.get_preprocessing(BACKBONE)
+```
+
 Load the data
-    
-    X_train, y_train, X_val, y_val = get_data(...)
-    
+
+```python
+X_train, y_train, X_val, y_val = get_data(...)
+```
+
 and preprocees it:
     
-    X_train = preprocess_input(X_train)
-    y_train = preprocess_input(y_train)
-      
- Define a Model and compile it with an appropriate loss:
+```python
+X_train = preprocess_input(X_train)
+y_train = preprocess_input(y_train)
+```
+
+Define a Model and compile it with an appropriate loss:
  
-    model = kasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
-    model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
+```python
+model = kasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
+model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
+```
 
 Now finally train the model:
 
-    history = model.fit(
-        x=X_train,
-        y=y_train,
-        batch_size=8,
-        epochs=50,
-        validation_data(x_val, y_val)
-    )
+```python
+history = model.fit(
+    x=X_train,
+    y=y_train,
+    batch_size=8,
+    epochs=50,
+    validation_data(x_val, y_val)
+)
+```
  
 You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
