@@ -259,7 +259,7 @@ def build_gscnn(
     skips = ([backbone.get_layer(name=i).output if isinstance(i, str)
               else backbone.get_layer(index=i).output for i in skip_connection_layers])    
 
-    s0 = layers.UpSampling2D(size=2, interpolation="bilinear", name="block0_upsample2x")(skips[3])
+    s0 = layers.UpSampling2D(size=2, interpolation="bilinear", name="block0_upsample2x")(Conv1x1BnActivation(filters=64, use_batchnorm=False, strides=(1, 1), activation=None, name="block0_conv1x1")(skips[3]))
     s1 = layers.UpSampling2D(size=8, interpolation="bilinear", name="block1_upsample8x")(Conv1x1BnActivation(filters=256, use_batchnorm=False, strides=(1, 1), activation=None, name="block1_conv1x1")(skips[1]))
     s2 = layers.UpSampling2D(size=16, interpolation="bilinear", name="block2_upsample16x")(Conv1x1BnActivation(filters=512, use_batchnorm=False, strides=(1, 1), activation=None, name="block2_conv1x1")(skips[0]))
     s3 = layers.UpSampling2D(size=32, interpolation="bilinear", name="block3_upsample32x")(Conv1x1BnActivation(filters=2048, use_batchnorm=False, strides=(1, 1), activation=None, name="block3_conv1x1")(x))
