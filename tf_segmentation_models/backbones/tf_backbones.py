@@ -150,4 +150,4 @@ def create_backbone(name="ResNet50", weights="imagenet", height=None, width=None
     backbone = tf.keras.Model(inputs=base_model.input, outputs=layers)
     backbone.trainable = trainable
 
-    return backbone
+    return backbone, layers, layer_names
