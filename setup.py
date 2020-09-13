@@ -12,13 +12,13 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'keras_advanced_segmentation_models'
+NAME = 'tf_advanced_segmentation_models'
 DESCRIPTION = 'Image segmentation models with pre-trained backbones with Keras.'
-URL = 'https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models'
+URL = 'https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models'
 EMAIL = 'j-m.kezmann@t-online.de'
 AUTHOR = 'Jan-Marcel Kezmann'
-REQUIRES_PYTHON = '>=3.0.0'
-VERSION = None
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '0.1.0'
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
