@@ -1,6 +1,4 @@
-image-classifiers==1.0.0
 tensorflow>=2.0.0
-skimage
 pydensecrf
 numpy
 albumentations>=3.0.0
