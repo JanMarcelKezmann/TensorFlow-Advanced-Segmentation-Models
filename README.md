@@ -1,4 +1,4 @@
-# Keras Advanced Segmentation Models
+# TensorFlow Advanced Segmentation Models
 A Python Library for High-Level Semantic Segmentation Models.
 
 ## Preface
@@ -26,33 +26,31 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 **Requirements**
 1) Python 3.6
-2) keras >= 2.2.0 or tensorflow >= 1.15
-3) keras-applications >= 1.0.7, <=1.0.8
-4) image-classifiers == 1.0.*
-5) efficientnet == 1.0.*
+2) tensorflow >= 2.0.0
+3) numpy
 
 <p>Furthermore just execute the following command to download and install the git repository.</p>
 
 **Source latest version**
 
-    $ pip install git+https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models
+    $ pip install git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
 
 ## Training Pipeline
 
-Please check that both **Tensorflow** and **Keras** are installed on your computer.
+Please check that **Tensorflow** is installed on your computer.
 
 To import the library just use the standard python import statement:
 
    
 ```python
-import keras_advanced_segmentation_models as kasm
+import tf_advanced_segmentation_models as tasm
 ```
       
 Then pick any model backbone from the list below:
 
 ```python
 BACKBONE = "efficientnetb3"
-preprocess_input = kasm.get_preprocessing(BACKBONE)
+preprocess_input = tasm.get_preprocessing(BACKBONE)
 ```
 
 Load the data
@@ -71,7 +69,7 @@ y_train = preprocess_input(y_train)
 Define a Model and compile it with an appropriate loss:
  
 ```python
-model = kasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
+model = tasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
 model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
 ```
 
@@ -88,7 +86,7 @@ history = model.fit(
 ```
  
 You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
-For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
+For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
 ## Models and Backbones
 
 **Models**
@@ -108,14 +106,9 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 |Type         | Names |
 |-------------|-------|
 |**VGG**          | ``'vgg16' 'vgg19'``|
-|**ResNet**       | ``'resnet18' 'resnet34' 'resnet50' 'resnet101' 'resnet152'``|
-|**SE-ResNet**    | ``'seresnet18' 'seresnet34' 'seresnet50' 'seresnet101' 'seresnet152'``|
-|**ResNeXt**      | ``'resnext50' 'resnext101'``|
-|**SE-ResNeXt**   | ``'seresnext50' 'seresnext101'``|
-|**SENet154**     | ``'senet154'``|
-|**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``| 
-|**Inception**    | ``'inceptionv3' 'inceptionresnetv2'``|
-|**MobileNet**    | ``'mobilenet' 'mobilenetv2'``|
+|**ResNet**       | ``''resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' ' resnet152v2``|
+|**Xception**     | ``''xception''``|
+|**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``|
     
 
@@ -133,12 +126,12 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
       Year = {2020},
       Publisher = {GitHub},
       Journal = {GitHub repository},
-      Howpublished = {\url{https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation_Models}}
+      Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation_Models}}
     } 
     
 ## License
 
-Project is distributed under <a href="https://github.com/JanMarcelKezmann/Keras-Advanced-Segmentation-Models/blob/master/LICENSE">MIT License</a>.
+Project is distributed under <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/LICENSE">MIT License</a>.
 
 ## References
 <p>Thank you for all the papers that made this repository possible and especially thank you Pavel Yakubovskiy's initial segmentation models repository.</p>
