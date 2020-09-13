@@ -1,1 +1,1 @@
-from .keras_advanced_segmentation_models import *
+from .tf_segmentation_models import *
