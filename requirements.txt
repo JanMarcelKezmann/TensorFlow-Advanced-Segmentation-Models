@@ -1,5 +1,7 @@
-keras>=2.2.0
-keras-applications==1.0.8
 image-classifiers==1.0.0
-efficientnet==1.0.0
-tensorflow-gpu==1.15
+tensorflow>=2.0.0
+skimage
+pydensecrf
+numpy
+albumentations>=3.0.0
+matplotlib
