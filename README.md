@@ -87,6 +87,9 @@ history = model.fit(
  
 You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
+## Examples
+- [Jupyter Notebook] Multi-class segmentation (sky, building) on CamVid dataset
+
 ## Models and Backbones
 
 **Models**
