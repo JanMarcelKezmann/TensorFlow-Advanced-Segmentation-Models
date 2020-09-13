@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 from ._custom_layers_and_blocks import ConvolutionBnActivation, SpatialContextBlock
 from ..backbones.tf_backbones import create_backbone
