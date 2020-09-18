@@ -3,8 +3,11 @@ import tensorflow as tf
 ################################################################################
 # Backbone
 ################################################################################
-def create_backbone(name="ResNet50", weights="imagenet", height=None, width=None, include_top=False, pooling=None,
-                    trainable=False, alpha=1.0, depth_multiplier=1.0):
+################################################################################
+# Backbone
+################################################################################
+def create_base_model(name="ResNet50", weights="imagenet", height=None, width=None,
+                      include_top=False, pooling=None, alpha=1.0, depth_multiplier=1.0):
                     # , dropout=0.001):
     if not isinstance(height, int) or not isinstance(width, int):
         raise TypeError("'height' and 'width' need to be of type 'int'")
@@ -147,7 +150,4 @@ def create_backbone(name="ResNet50", weights="imagenet", height=None, width=None
 
     layers = [base_model.get_layer(layer_name).output for layer_name in layer_names]
 
-    backbone = tf.keras.Model(inputs=base_model.input, outputs=layers)
-    backbone.trainable = trainable
-
-    return backbone, layers, layer_names
+    return base_model, layers, layer_names
