@@ -4,16 +4,20 @@ from ._custom_layers_and_blocks import ConvolutionBnActivation, Upsample_x2_Bloc
 from ..backbones.tf_backbones import create_backbone
 
 class UNet(tf.keras.Model):
-    def __init__(self, n_classes, backbone, filters=256, activation="softmax",
-                 up_filters=[64, 64, 128, 256, 512], include_top_conv=True, **kwargs):
+    def __init__(self, n_classes, base_model, output_layers, filters=128,
+                 final_activation="softmax", backbone_trainable=False,
+                 up_filters=[32, 64, 128, 256, 512], include_top_conv=True, **kwargs):
         super(UNet, self).__init__(**kwargs)
 
         self.n_classes = n_classes
-        self.backbone = backbone
-        self.activation = activation
+        self.backbone = None
+        self.final_activation = final_activation
         self.filters = filters
         self.up_filters = up_filters
         self.include_top_conv = include_top_conv
+
+        base_model.trainable = backbone_trainable
+        self.backbone = tf.keras.Model(inputs=base_model.input, outputs=output_layers)
 
         # Define Layers
         self.conv3x3_bn_relu1 = ConvolutionBnActivation(filters, kernel_size=(3, 3), post_activation="relu")
@@ -27,7 +31,7 @@ class UNet(tf.keras.Model):
 
         self.final_conv3x3 = tf.keras.layers.Conv2D(self.n_classes, (3, 3), strides=(1, 1), padding='same')
 
-        self.final_activation = tf.keras.layers.Activation(activation)
+        self.final_activation = tf.keras.layers.Activation(final_activation)
 
     def call(self, inputs, training=None, mask=None):
         if training is None:
@@ -47,10 +51,7 @@ class UNet(tf.keras.Model):
         upsample = self.upsample2d_x2_block4(upsample, self.backbone(inputs)[0], training)
         upsample = self.upsample2d_x2_block5(upsample, conv1, training)
 
-        # print(upsample.shape)
-
         x = self.final_conv3x3(upsample, training=training)
         x = self.final_activation(x)
-        # print(training)
 
         return x
