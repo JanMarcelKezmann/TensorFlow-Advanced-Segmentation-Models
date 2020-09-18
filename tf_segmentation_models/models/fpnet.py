@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 
 from ._custom_layers_and_blocks import ConvolutionBnActivation, FPNBlock
-from ..backbones.tf_backbones import create_backbone
+from ..backbones.tf_backbones import create_base_model
 
 class FPNet(tf.keras.models.Model):
     def __init__(self, n_classes, base_model, output_layers, filters=128,
