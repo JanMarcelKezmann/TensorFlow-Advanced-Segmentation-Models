@@ -144,7 +144,6 @@ class AtrousSeparableConvolutionBnReLU(tf.keras.layers.Layer):
             epsilon=self.epsilon,
             center=self.center,
             scale=self.scale,
-            trainable=self.trainable,
             name=self.block_name + "_bn" if self.block_name is not None else None
         )
         
@@ -166,11 +165,11 @@ class AtrousSeparableConvolutionBnReLU(tf.keras.layers.Layer):
         print(input_shape)
         return [input_shape[0], input_shape[1], input_shape[2], self.filters]
 
-class AtrousSpatialPyramidPooling(tf.keras.layers.Layer):
+class AtrousSpatialPyramidPoolingV3(tf.keras.layers.Layer):
     """
     """
     def __init__(self, atrous_rates, filters):
-        super(AtrousSpatialPyramidPooling, self).__init__()
+        super(AtrousSpatialPyramidPoolingV3, self).__init__()
         self.filters = filters
 
         # adapt scale and mometum for bn
@@ -190,9 +189,9 @@ class AtrousSpatialPyramidPooling(tf.keras.layers.Layer):
 
     def call(self, input_tensor, training=None):
         # global average pooling input_tensor
-        glob_avg_pool = tf.reduce_mean(input_tensor, axis=[1, 2], keepdims=True)
+        glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=[1, 2], keepdims=True))(input_tensor)
         glob_avg_pool = self.conv_bn_relu(glob_avg_pool, training=training)
-        glob_avg_pool = tf.image.resize(glob_avg_pool, [input_tensor.shape[1], input_tensor.shape[2]])
+        glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.image.resize(x, [input_tensor.shape[1], input_tensor.shape[2]]))(glob_avg_pool)
 
         # process with atrous
         w = self.conv_bn_relu(input_tensor, training=training)
@@ -218,22 +217,43 @@ class Upsample_x2_Block(tf.keras.layers.Layer):
         self.trainable = trainable
 
         self.upsample2d_size2 = tf.keras.layers.UpSampling2D(size=2, interpolation="bilinear")
-        self.conv3x3_bn_relu1 = tf.keras.layers.Conv2D(filters, kernel_size=(2, 2), padding="same")
+        self.conv2x2_bn_relu = tf.keras.layers.Conv2D(filters, kernel_size=(2, 2), padding="same")
 
         self.concat = tf.keras.layers.Concatenate(axis=3)
 
+        self.conv3x3_bn_relu1 = ConvolutionBnActivation(filters, kernel_size=(3, 3), post_activation="relu")
         self.conv3x3_bn_relu2 = ConvolutionBnActivation(filters, kernel_size=(3, 3), post_activation="relu")
-        self.conv3x3_bn_relu3 = ConvolutionBnActivation(filters, kernel_size=(3, 3), post_activation="relu")
 
-    def call(self, x, skip, training=None):
+    def call(self, x, skip=None, training=None):
         x = self.upsample2d_size2(x)
-        x = self.conv3x3_bn_relu1(x, training=training)
+        x = self.conv2x2_bn_relu(x, training=training)
 
         if skip is not None:
             x = self.concat([x, skip])
 
+        x = self.conv3x3_bn_relu1(x, training=training)
         x = self.conv3x3_bn_relu2(x, training=training)
-        x = self.conv3x3_bn_relu3(x, training=training)
+
+        return x
+
+    def compute_output_shape(self, input_shape):
+        print(input_shape)
+        return [input_shape[0], input_shape[1] * 2, input_shape[2] * 2, input_shape[3]]
+
+class Upsample_x2_Add_Block(tf.keras.layers.Layer):
+    """
+    """
+    def __init__(self, filters):
+        super(Upsample_x2_Add_Block, self).__init__()
+
+        self.upsample2d_size2 = tf.keras.layers.UpSampling2D(size=2, interpolation="bilinear")
+        self.conv1x1_bn_relu = tf.keras.layers.Conv2D(filters, kernel_size=(1, 1), padding="same")
+        self.add = tf.keras.layers.Add()
+
+    def call(self, x, skip, training=None):
+        x = self.upsample2d_size2(x)
+        skip = self.conv1x1_bn_relu(x, training=training)
+        x = self.add([x, skip])
 
         return x
 
@@ -300,5 +320,33 @@ class FPNBlock(tf.keras.layers.Layer):
         skip = self.conv1x1_2(skip)
         x = self.upsample2d(x)
         x = self.add([x, skip])
+
+        return x
+
+class AtrousSpatialPyramidPoolingV1(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(AtrousSpatialPyramidPoolingV1, self).__init__()
+
+        self.filters = filters
+        
+        self.conv1x1_bn_relu = ConvolutionBnActivation(filters, (1, 1), post_activation="relu")
+        self.atrous6_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=6, post_activation="relu")
+        self.atrous12_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=12, post_activation="relu")
+        self.atrous18_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=18, post_activation="relu")
+        self.atrous24_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=24, post_activation="relu")
+
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+
+    def call(self, x, training=None):
+        
+        x1 = self.conv1x1_bn_relu(x, training=training)
+        x3_r6 = self.atrous6_conv3x3_bn_relu(x, training=training)
+        x3_r12 = self.atrous12_conv3x3_bn_relu(x, training=training)
+        x3_r18 = self.atrous18_conv3x3_bn_relu(x, training=training)
+        x3_r24 = self.atrous24_conv3x3_bn_relu(x, training=training)
+        
+        x = self.concat([x1, x3_r6, x3_r12, x3_r18, x3_r24])
 
         return x
