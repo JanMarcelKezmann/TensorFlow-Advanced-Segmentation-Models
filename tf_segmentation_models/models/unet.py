@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from ._custom_layers_and_blocks import ConvolutionBnActivation, Upsample_x2_Block
-from ..backbones.tf_backbones import create_backbone
+from ..backbones.tf_backbones import create_base_model
 
 class UNet(tf.keras.Model):
     def __init__(self, n_classes, base_model, output_layers, filters=128,
