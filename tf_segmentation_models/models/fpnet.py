@@ -5,19 +5,23 @@ from ._custom_layers_and_blocks import ConvolutionBnActivation, FPNBlock
 from ..backbones.tf_backbones import create_backbone
 
 class FPNet(tf.keras.models.Model):
-    def __init__(self, n_classes, backbone, filters=128, activation="softmax",
+    def __init__(self, n_classes, base_model, output_layers, filters=128,
+                 final_activation="softmax", backbone_trainable=False,
                  pyramid_filters=256, aggregation="sum", dropout=None, **kwargs):
         super(FPNet, self).__init__()
         
         self.n_classes = n_classes
-        self.backbone = backbone
-        self.activation = activation
+        self.backbone = None
+        self.final_activation = final_activation
         self.filters = filters
         self.pyramid_filters = pyramid_filters
         self.aggregation = aggregation
         self.dropout = dropout
 
         self.axis = 3 if K.image_data_format() == "channels_last" else 1
+
+        base_model.trainable = backbone_trainable
+        self.backbone = tf.keras.Model(inputs=base_model.input, outputs=output_layers)
 
         # Define Layers
         self.fpn_block_p5 = FPNBlock(pyramid_filters)
@@ -47,7 +51,7 @@ class FPNet(tf.keras.models.Model):
         self.final_upsample2d = tf.keras.layers.UpSampling2D(size=2, interpolation="bilinear")
 
         self.final_conv3x3 = tf.keras.layers.Conv2D(self.n_classes, (3, 3), strides=(1, 1), padding='same')
-        self.final_activation = tf.keras.layers.Activation(activation)
+        self.final_activation = tf.keras.layers.Activation(final_activation)
     
     
     def call(self, inputs, training=None, mask=None):
