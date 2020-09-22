@@ -350,3 +350,170 @@ class AtrousSpatialPyramidPoolingV1(tf.keras.layers.Layer):
         x = self.concat([x1, x3_r6, x3_r12, x3_r18, x3_r24])
 
         return x
+
+class SelfAttentionBlock2D(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(SelfAttentionBlock2D, self).__init__()
+
+        self.filters = filters
+
+        self.conv1x1_1 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
+        self.conv1x1_2 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
+        self.conv1x1_3 = tf.keras.layers.Conv2D(filters // 2, (1, 1), padding="same")
+        self.conv1x1_4 = tf.keras.layers.Conv2D(filters, (1, 1), padding="same")
+        
+        self.softmax_activation = tf.keras.layers.Activation("softmax")
+
+    def call(self, x, training=None):
+        f = self.conv1x1_1(x, training=training)
+
+        g = self.conv1x1_2(x, training=training)
+
+        h = self.conv1x1_3(x, training=training)
+
+        g = tf.reshape(g, (g.shape[0], -1, g.shape[-1]))
+        f = tf.reshape(f, (f.shape[0], -1, f.shape[-1]))
+
+        # s = tf.matmul(tf.reshape(g, (x.shape[0], -1, x.shape[-1])), tf.reshape(f, (x.shape[0], -1, x.shape[-1])), transpose_b=True)
+        s = tf.matmul(g, f, transpose_b=True)
+        beta = self.softmax_activation(s)
+
+        h = tf.reshape(h, (h.shape[0], -1, h.shape[-1]))
+
+        o = tf.matmul(beta, h)
+        gamma = tf.Variable(0.0, trainable=training, name="gamma")
+
+        o = tf.reshape(o, shape=(x.shape[0], x.shape[1], x.shape[2], x.shape[3] // 2))
+        o = self.conv1x1_4(o, training=training)
+        x = gamma * o + x
+
+        return x
+
+class Base_OC_Module(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(Base_OC_Module, self).__init__()
+
+        self.filters = filters
+
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+
+        self.self_attention_block2d = SelfAttentionBlock2D(filters)
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+        self.conv1x1_bn_relu = ConvolutionBnActivation(filters, (1, 1))
+
+    def call(self, x, training=None):
+        
+        attention = self.self_attention_block2d(x, training=training)
+        x = self.concat([attention, x])
+        x = self.conv1x1_bn_relu(x, training=training)
+
+        return x
+
+class Pyramid_OC_Module(tf.keras.layers.Layer):
+    def __init__(self, levels, filters=256, pooling_type="avg"):
+        super(Pyramid_OC_Module, self).__init__()
+
+        self.levels = levels
+        self.filters = filters
+        self.pooling_type = pooling_type
+
+        self.pyramid_block_1 = SelfAttentionBlock2D(filters)
+        self.pyramid_block_2 = SelfAttentionBlock2D(filters)
+        self.pyramid_block_3 = SelfAttentionBlock2D(filters)
+        self.pyramid_block_6 = SelfAttentionBlock2D(filters)
+
+        self.pooling2d_1 = None
+        self.pooling2d_2 = None
+        self.pooling2d_3 = None
+        self.pooling2d_6 = None
+
+        self.conv1x1_bn_relu_1 = ConvolutionBnActivation(filters, kernel_size=(1, 1))
+        
+        self.upsample2d_1 = None
+        self.upsample2d_2 = None
+        self.upsample2d_3 = None
+        self.upsample2d_6 = None
+        
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+        self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, kernel_size=(1, 1))
+
+    def build(self, input_shape):
+        if self.pooling_type not in ("max", "avg"):
+            raise ValueError("Unsupported pooling type - '{}'".format(pooling_type) + "Use 'avg' or 'max'")
+
+        self.pooling2d_1 = tf.keras.layers.MaxPool2D if self.pooling_type == "max" else tf.keras.layers.AveragePooling2D
+        self.pooling2d_2 = tf.keras.layers.MaxPool2D if self.pooling_type == "max" else tf.keras.layers.AveragePooling2D
+        self.pooling2d_3 = tf.keras.layers.MaxPool2D if self.pooling_type == "max" else tf.keras.layers.AveragePooling2D
+        self.pooling2d_6 = tf.keras.layers.MaxPool2D if self.pooling_type == "max" else tf.keras.layers.AveragePooling2D
+
+        spatial_size = input_shape[1:3] if K.image_data_format() == "channels_last" else input_shape[2:]
+        pool_size_1 = up_size_1 = [spatial_size[0] // self.levels[0], spatial_size[1] // self.levels[0]]
+        pool_size_2 = up_size_2 = [spatial_size[0] // self.levels[1], spatial_size[1] // self.levels[1]]
+        pool_size_3 = up_size_3 = [spatial_size[0] // self.levels[2], spatial_size[1] // self.levels[2]]
+        pool_size_6 = up_size_6 = [spatial_size[0] // self.levels[3], spatial_size[1] // self.levels[3]]
+
+        self.pooling2d_1 = self.pooling2d_1(pool_size_1, strides=pool_size_1, padding="same")
+        self.pooling2d_2 = self.pooling2d_2(pool_size_2, strides=pool_size_2, padding="same")
+        self.pooling2d_3 = self.pooling2d_3(pool_size_3, strides=pool_size_3, padding="same")
+        self.pooling2d_6 = self.pooling2d_6(pool_size_6, strides=pool_size_6, padding="same")
+        
+        self.upsample2d_1 = tf.keras.layers.UpSampling2D(up_size_1, interpolation="bilinear")
+        self.upsample2d_2 = tf.keras.layers.UpSampling2D(up_size_2, interpolation="bilinear")
+        self.upsample2d_3 = tf.keras.layers.UpSampling2D(up_size_3, interpolation="bilinear")
+        self.upsample2d_6 = tf.keras.layers.UpSampling2D(up_size_6, interpolation="bilinear")
+
+    def call(self, x, training=None):
+        attention_1 = self.pooling2d_1(x, training=training)
+        attention_1 = self.pyramid_block_1(attention_1, training=training)
+        attention_1 = self.upsample2d_1(attention_1)
+        attention_2 = self.pooling2d_2(x, training=training)
+        attention_2 = self.pyramid_block_2(attention_2, training=training)
+        attention_2 = self.upsample2d_2(attention_2)
+        attention_3 = self.pooling2d_3(x, training=training)
+        attention_3 = self.pyramid_block_3(attention_3, training=training)
+        attention_3 = self.upsample2d_3(attention_3)
+        attention_6 = self.pooling2d_6(x, training=training)
+        attention_6 = self.pyramid_block_6(attention_6, training=training)
+        attention_6 = self.upsample2d_6(attention_6)
+
+        x = self.conv1x1_bn_relu_1(x, training=training)
+        
+        x = self.concat([attention_1, attention_2, attention_3, attention_6, x])
+        x = self.conv1x1_bn_relu_2(x, training=training)
+
+        return x
+
+class ASP_OC_Module(tf.keras.layers.Layer):
+    def __init__(self, filters, dilations):
+        super(ASP_OC_Module, self).__init__()
+        self.filters = filters
+        self.dilations = dilations
+
+        self.conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3))
+        self.context = Base_OC_Module(filters)
+
+        self.conv1x1_bn_relu_1 = ConvolutionBnActivation(filters, (1, 1), post_activation="relu")
+        self.atrous6_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=6, post_activation="relu")
+        self.atrous12_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=12, post_activation="relu")
+        self.atrous18_conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), dilation_rate=18, post_activation="relu")
+        
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+        self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, (1, 1))
+
+    def call(self, x, training=None):
+
+        a = self.conv3x3_bn_relu(x, training=training)
+        a = self.context(a, training=training)
+        b = self.conv1x1_bn_relu_1(x, training=training)
+        c = self.atrous6_conv3x3_bn_relu(x, training=training)
+        d = self.atrous12_conv3x3_bn_relu(x, training=training)
+        e = self.atrous18_conv3x3_bn_relu(x, training=training)
+
+        x = self.concat([a, b, c, d, e])
+        x = self.conv1x1_bn_relu_2(x, training=training)
+
+        return x
