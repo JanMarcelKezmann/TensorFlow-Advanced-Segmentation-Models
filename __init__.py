@@ -1,1 +1,1 @@
-from .tf_segmentation_models import *
+from .tensorflow_advanced_segmentation_models import *

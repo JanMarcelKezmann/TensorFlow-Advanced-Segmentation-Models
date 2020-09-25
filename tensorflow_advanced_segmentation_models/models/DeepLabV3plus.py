@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from ._custom_layers_and_blocks import ConvolutionBnActivation, AtrousSeparableConvolutionBnReLU, AtrousSpatialPyramidPooling
+from ._custom_layers_and_blocks import ConvolutionBnActivation, AtrousSeparableConvolutionBnReLU, AtrousSpatialPyramidPoolingV3
 from ..backbones.tf_backbones import create_base_model
 
 class DeepLabV3plus(tf.keras.Model):
