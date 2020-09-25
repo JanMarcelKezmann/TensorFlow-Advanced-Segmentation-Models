@@ -2,7 +2,7 @@
 A Python Library for High-Level Semantic Segmentation Models.
 
 <p align="center">
- <img src="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/images/tasm%20logo%20big%20white%20bg.PNG" width="700" height="240">
+ <img src="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/images/tasm%20logo%20big%20white%20bg.PNG" width="700" height="220">
 </p>
 
 ## Preface
@@ -29,15 +29,15 @@ A Python Library for High-Level Semantic Segmentation Models.
 <p>To get the repository running just check the following requirements.</p>
 
 **Requirements**
-1) Python 3.6
-2) tensorflow >= 2.0.0
+1) Python 3.6 or higher
+2) tensorflow >= 2.3.0 (>= 2.0.0 is sufficient if no efficientnet backbone is used)
 3) numpy
 
 <p>Furthermore just execute the following command to download and install the git repository.</p>
 
 **Source latest version**
 
-    $ pip install git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
+    $ git clone https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
 
 ## Training Pipeline
 
@@ -47,14 +47,16 @@ To import the library just use the standard python import statement:
 
    
 ```python
-import tf_advanced_segmentation_models as tasm
+import tensorflow_advanced_segmentation_models as tasm
 ```
       
-Then pick any model backbone from the list below:
+Then pick any model backbone from the list below and define weights, height and width:
 
 ```python
-BACKBONE = "efficientnetb3"
-preprocess_input = tasm.get_preprocessing(BACKBONE)
+BACKBONE_NAME = "efficientnetb3"
+WEIGHTS = "imagenet"
+HEIGHT = 160
+WIDTH = 160
 ```
 
 Load the data
@@ -63,18 +65,17 @@ Load the data
 X_train, y_train, X_val, y_val = get_data(...)
 ```
 
-and preprocees it:
-    
+Create the base model that works as backbone for the segmentation model:
+
 ```python
-X_train = preprocess_input(X_train)
-y_train = preprocess_input(y_train)
+base_model, layers, layer_names = tasm.create_base_model(name=BACKBONE_NAME, weights=WEIGHTS, height=HEIGHT, width=WIDTH, include_top=False, pooling=None)
 ```
 
 Define a Model and compile it with an appropriate loss:
  
 ```python
-model = tasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
-model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
+model = tasm.DANet(n_classes=3, base_model=base_model, output_layers=layers, backbone_trainable=False)
+model.compile(tf.keras.optimizers.Adam(0.0001), loss=tasm.losses.CategoricalFocalLoss, tasm.metrics.IOUScore(threshold=0.5))
 ```
 
 Now finally train the model:
@@ -101,11 +102,12 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1411.4038.pdf">FCN</a>**
 - **<a href="https://arxiv.org/abs/1505.04597">UNet</a>** (Orig<a href=""> qubvel </a>Code)
 - **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="https://arxiv.org/abs/1707.03718">Linknet</a>** (Orig<a href=""> qubvel </a>Code)
 - **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>** (Orig<a href=""> qubvel </a>Code)
 - **<a href="https://arxiv.org/pdf/1606.00915.pdf">DeepLab</a>**
 - **<a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>**
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
+- **DANet**
+- **OCNet**
     
 **Backbones**
 (For Details see <a href="">here</a>.)
