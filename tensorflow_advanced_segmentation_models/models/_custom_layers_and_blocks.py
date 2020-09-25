@@ -517,3 +517,93 @@ class ASP_OC_Module(tf.keras.layers.Layer):
         x = self.conv1x1_bn_relu_2(x, training=training)
 
         return x
+
+class PAM_Module(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(PAM_Module, self).__init__()
+
+        self.filters = filters
+
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+
+        self.conv1x1_bn_relu_1 = ConvolutionBnActivation(filters, (1, 1))
+        self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, (1, 1))
+        self.conv1x1_bn_relu_3 = ConvolutionBnActivation(filters, (1, 1))
+
+        self.softmax = tf.keras.layers.Activation("softmax")
+
+    def call(self, x, training=None):
+        BS, C, H, W = x.shape
+
+        query = self.conv1x1_bn_relu_1(x, training=training)
+        key = self.conv1x1_bn_relu_2(x, training=training)
+
+        if K.image_data_format() == "channels_last":
+            query = tf.keras.layers.Reshape((H * W, -1))(query) 
+            key = tf.keras.layers.Reshape((H * W, -1))(key)
+            
+            energy = tf.linalg.matmul(query, key, transpose_b=True)
+        else:
+            query = tf.keras.layers.Reshape((-1, H * W))(query)
+            key = tf.keras.layers.Reshape((-1, H * W))(key)
+            
+            energy = tf.linalg.matmul(query, key, transpose_a=True)
+        
+        attention = self.softmax(energy)
+
+        value = self.conv1x1_bn_relu_3(x, training=training)
+
+        if K.image_data_format() == "channels_last":
+            value = tf.keras.layers.Reshape((H * W, -1))(value) 
+            out = tf.linalg.matmul(value, attention, transpose_a=True)
+        else:
+            value = tf.keras.layers.Reshape((-1, H * W))(value)
+            out = tf.linalg.matmul(value, attention)
+
+        out = tf.keras.layers.Reshape(x.shape[1:])(out)
+
+        gamma = tf.Variable(0.0, trainable=training, name="pam_gamma")
+        out = gamma * out + x
+
+        return out
+
+class CAM_Module(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(CAM_Module, self).__init__()
+
+        self.filters = filters
+
+        self.softmax = tf.keras.layers.Activation("softmax")
+
+    def call(self, x, training=None):
+        BS, C, H, W = x.shape
+
+        if K.image_data_format() == "channels_last":
+            query = tf.keras.layers.Reshape((-1, C))(x) 
+            key = tf.keras.layers.Reshape((-1, C))(x)
+
+            energy = tf.linalg.matmul(query, key, transpose_a=True)
+            energy_2 = tf.math.reduce_max(energy, axis=1, keepdims=True)[0] - energy
+        else:
+            query = tf.keras.layers.Reshape((C, -1))(query)
+            key = tf.keras.layers.Reshape((C, -1))(key)
+        
+            energy = tf.linalg.matmul(query, key, transpose_b=True)
+            energy_2 = tf.math.reduce_max(energy, axis=-1, keepdims=True)[0] - energy
+        
+        attention = self.softmax(energy_2)
+
+        if K.image_data_format() == "channels_last":
+            value = tf.keras.layers.Reshape((-1, C))(x)
+            out = tf.linalg.matmul(attention, value, transpose_b=True) 
+        else:
+            value = tf.keras.layers.Reshape((C, -1))(x)
+            out = tf.linalg.matmul(attention, value)
+
+        out = tf.keras.layers.Reshape(x.shape[1:])(out)
+
+        gamma = tf.Variable(0.0, trainable=training, name="cam_gamma")
+        out = gamma * out + x
+
+        return out
