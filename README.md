@@ -11,7 +11,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ### Main Library Features
 - High Level API
-- 8 Segmentation Model Architectures for multi-class semantic segmentation
+- 9 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses
 
@@ -108,6 +108,9 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
 - **DANet**
 - **OCNet**
+
+Coming Soon...
+- **CFNet**
     
 **Backbones**
 (For Details see <a href="">here</a>.)
