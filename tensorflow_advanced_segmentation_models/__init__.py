@@ -8,6 +8,7 @@ from .models.UNet import UNet
 from .models.OCNet import OCNet
 from .models.FPNet import FPNet
 from .models.DANet import DANet
+from .models.CFNet import CFNet
 from .models.PSPNet import PSPNet
 from .models.DeepLab import DeepLab
 from .models.DeepLabV3 import DeepLabV3
