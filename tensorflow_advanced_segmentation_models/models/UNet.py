@@ -3,6 +3,9 @@ import tensorflow as tf
 from ._custom_layers_and_blocks import ConvolutionBnActivation, Upsample_x2_Block
 from ..backbones.tf_backbones import create_base_model
 
+################################################################################
+# UNet
+################################################################################
 class UNet(tf.keras.Model):
     def __init__(self, n_classes, base_model, output_layers, filters=128,
                  final_activation="softmax", backbone_trainable=False,

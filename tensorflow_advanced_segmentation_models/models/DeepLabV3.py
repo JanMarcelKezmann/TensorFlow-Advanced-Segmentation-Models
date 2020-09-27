@@ -4,6 +4,9 @@ import tensorflow.keras.backend as K
 from ._custom_layers_and_blocks import ConvolutionBnActivation, AtrousSeparableConvolutionBnReLU, AtrousSpatialPyramidPoolingV3
 from ..backbones.tf_backbones import create_base_model
 
+################################################################################
+# DeepLabV3
+################################################################################
 class DeepLabV3(tf.keras.Model):
     def __init__(self, n_classes, base_model, output_layers, filters=256,
                  final_activation="softmax", backbone_trainable=False,

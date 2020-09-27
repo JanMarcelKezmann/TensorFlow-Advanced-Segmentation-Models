@@ -4,6 +4,9 @@ import tensorflow.keras.backend as K
 from ._custom_layers_and_blocks import ConvolutionBnActivation, FPNBlock
 from ..backbones.tf_backbones import create_base_model
 
+################################################################################
+# Feature Pyramid Network
+################################################################################
 class FPNet(tf.keras.models.Model):
     def __init__(self, n_classes, base_model, output_layers, filters=128,
                  final_activation="softmax", backbone_trainable=False,

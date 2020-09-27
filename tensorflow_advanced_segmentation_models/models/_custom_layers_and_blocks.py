@@ -607,3 +607,358 @@ class CAM_Module(tf.keras.layers.Layer):
         out = gamma * out + x
 
         return out
+
+
+class GlobalPooling(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(GlobalPooling, self).__init__()
+        self.filters = filters
+
+        self.conv1x1_bn_relu = ConvolutionBnActivation(filters, (1, 1))
+
+    def call(self, x, training=None):
+        if K.image_data_format() == "channels_last":
+            BS, H, W, C = x.shape
+            glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=[1, 2], keepdims=True))(x)
+            glob_avg_pool = self.conv1x1_bn_relu(glob_avg_pool, training=training)
+            glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.image.resize(x, [H, W]))(glob_avg_pool)
+        else:
+            BS, C, H, W = x.shape
+            glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=[1, 2], keepdims=True))(x)
+            glob_avg_pool = self.conv1x1_bn_relu(glob_avg_pool, training=training)
+            glob_avg_pool = tf.keras.layers.Lambda(lambda x: tf.image.resize(x, [H, W]))(glob_avg_pool)
+
+        return glob_avg_pool
+
+class MixtureOfSoftMaxACF(tf.keras.layers.Layer):
+    def __init__(self, d_k, att_dropout=0.1):
+        super(MixtureOfSoftMaxACF, self).__init__()
+        self.temperature = tf.math.pow(tf.cast(d_k, tf.float32), 0.5)
+        self.att_dropout = att_dropout
+        
+        self.dropout = tf.keras.layers.Dropout(att_dropout)
+        self.softmax_1 = tf.keras.layers.Activation("softmax")
+        self.softmax_2 = tf.keras.layers.Activation("softmax")
+
+        self.d_k = d_k
+
+    def call(self, qt, kt, vt, training=None):
+        if K.image_data_format() == "channels_last":
+            BS, N, d_k = qt.shape # (BS, H * W, C)
+
+            assert d_k == self.d_k
+            d = d_k
+
+            q = tf.keras.layers.Reshape((N, d))(qt)          # (BS, N, d)
+            # q = tf.transpose(q, perm=[0, 2, 1])                 # (BS, d, N)
+            N2 = kt.shape[1]
+            kt = tf.keras.layers.Reshape((N2, d))(kt)       # (BS, N2, d)
+            # v = tf.keras.layers.transpose(vt, perm=[0, 2, 1])   # (BS, d, N2)
+
+            att = tf.linalg.matmul(q, kt, transpose_b=True)     # (BS, N, N2)
+            att = att / self.temperature                        # (BS, N, N2)
+            att = self.softmax_2(att)                           # (BS, N, N2)
+            att = self.dropout(att, training=training)          # (BS, N, N2)
+
+            out = tf.linalg.matmul(att, vt)                     # (BS, N, d)
+
+        else:
+            BS, d_k, N = qt.shape
+
+            assert d_k == self.d_k
+            d = d_k
+
+            q = tf.keras.layers.Reshape((d, N))(qt)          # (BS, d, N)
+            # q = tf.transpose(q, perm=[0, 2, 1])                 # (BS, N, d)
+            N2 = kt.shape[2]
+            kt = tf.keras.layers.Reshape((d, N2))(kt)       # (BS, d, N2)
+            # v = tf.transpose(vt, perm=[0, 2, 1])                # (BS, N2, d)
+
+            att = tf.linalg.matmul(q, kt, transpose_a=True)     # (BS, N, N2)
+            att = att / self.temperature                        # (BS, N, N2)
+            att = self.softmax_2(att)                           # (BS, N, N2)
+            att = self.dropout(att, training=training)          # (BS, N, N2)
+
+            out = tf.linalg.matmul(att, vt, transpose_b=True)   # (BS, N, d)
+
+        return out
+
+class ACF_Module(tf.keras.layers.Layer):
+    def __init__(self, filters, kq_transform="conv", value_transform="conv",
+                 pooling=True, concat=False, dropout=0.1):
+        super(ACF_Module, self).__init__()
+        self.filters = filters
+        self.kq_transform = kq_transform
+        self.value_transform = value_transform
+        self.pooling = pooling
+        self.concat = concat # if True concat else Add
+        self.dropout = dropout
+
+        self.avg_pool2d_1 = tf.keras.layers.AveragePooling2D(pool_size=(2, 2), padding="same", data_format=K.image_data_format())
+        self.avg_pool2d_2 = tf.keras.layers.AveragePooling2D(pool_size=(2, 2), padding="same", data_format=K.image_data_format())
+        
+        self.conv_ks_1 = None
+        self.conv_ks_2 = None
+        self.conv_vs = None
+
+        self.attention = MixtureOfSoftMaxACF(d_k=filters, att_dropout=0.1)
+
+        self.conv1x1_bn_relu = tf.keras.layers.Conv2D(filters, (1, 1), padding="same")
+        
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+        self.bn = tf.keras.layers.BatchNormalization(axis=axis)
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+        self.add = tf.keras.layers.Add()
+
+    def build(self, input_shape):
+        if self.kq_transform == "conv":
+            self.conv_ks_1 = tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")
+            self.conv_ks_2 = tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")
+        elif self.kq_transform == "ffn":
+            self.conv_ks_1 = tf.keras.Sequential(
+                [ConvolutionBnActivation(self.filters, (3, 3)),
+                tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")]
+            )
+            self.conv_ks_2 = tf.keras.Sequential(
+                [ConvolutionBnActivation(self.filters, (3, 3)),
+                tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")]
+            )
+        elif self.kq_transform == "dffn":
+            self.conv_ks_1 = tf.keras.Sequential(
+                [ConvolutionBnActivation(self.filters, (3, 3), dilation_rate=(4, 4)),
+                tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")]
+            )
+            self.conv_ks_2 = tf.keras.Sequential(
+                [ConvolutionBnActivation(self.filters, (3, 3), dilation_rate=(4, 4)),
+                tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")]
+            )
+        else:
+            raise NotImplementedError("Allowed options for 'kq_transform' are only ('conv', 'ffn', 'dffn'), got {}".format(self.kq_transform))
+        
+        if self.value_transform == "conv":
+            self.conv_vs = tf.keras.layers.Conv2D(self.filters, (1, 1), padding="same")
+        else:
+            raise NotImplementedError("Allowed options for 'value_transform' is only 'conv', got {}".format(self.kq_transform))
+
+    def call(self, x, training=None):
+        residual = x
+        d_k = self.filters / 8
+        if K.image_data_format() == "channels_last":
+            BS, H, W, C = x.shape
+            
+            if self.pooling:
+                qt = self.conv_ks_1(x, training=training)
+                qt = tf.keras.layers.Reshape((H * W, -1))(qt)       # (BS, N, C)
+                kt = self.avg_pool2d_1(x)
+                kt = self.conv_ks_2(kt, training=training)
+                kt = tf.keras.layers.Reshape((H * W // 4, -1))(kt)  # (BS, N / 4, C)
+                vt = self.avg_pool2d_2(x)
+                vt = self.conv_vs(vt, training=training)
+                vt = tf.keras.layers.Reshape((H * W // 4, -1))(vt)  # (BS, N / 4, C)
+            else:
+                qt = self.conv_ks_1(x, training=training)
+                qt = tf.keras.layers.Reshape((H * W, -1))(qt)       # (BS, N, C)
+                kt = self.conv_ks_2(x, training=training)
+                kt = tf.keras.layers.Reshape((H * W, -1))(kt)       # (BS, N, C)
+                vt = self.conv_vs(x, training=training)
+                vt = tf.keras.layers.Reshape((H * W, -1))(vt)       # (BS, N, C)
+
+            out = self.attention(qt, kt, vt, training=training)     # (BS, N, C)
+
+            # out = tf.transpose(out, perm=[0, 2, 1])                 
+            out = tf.keras.layers.Reshape((H, W, -1))(out)          # (BS, H, W, C)
+            
+        else:
+            BS, C, H, W = x.shape
+
+            if self.pooling:
+                qt = self.conv_ks_1(x, training=training)
+                qt = tf.keras.layers.Reshape((-1, H * W))(qt)       # (BS, C, N)
+                kt = self.avg_pool2d_1(x)
+                kt = self.conv_ks_2(kt, training=training)
+                kt = tf.keras.layers.Reshape((-1, H * W // 4))(kt)  # (BS, C, N / 4)
+                vt = self.avg_pool2d_2(x)
+                vt = self.conv_vs(vt, training=training)
+                vt = tf.keras.layers.Reshape((-1, H * W // 4))(vt)  # (BS, C, N / 4)
+            else:
+                qt = self.conv_ks_1(x, training=training)
+                qt = tf.keras.layers.Reshape((-1, H * W))(qt)       # (BS, C, N)
+                kt = self.conv_ks_2(x, training=training)
+                kt = tf.keras.layers.Reshape((-1, H * W))(kt)       # (BS, C, N)
+                vt = self.conv_vs(x, training=training)
+                vt = tf.keras.layers.Reshape((-1, H * W))(vt)       # (BS, C, N)
+
+            out = self.attention(qt, kt, vt)                        # (BS, N, C)
+
+            out = tf.transpose(out, perm=[0, 2, 1])                 # (BS, C, N)
+            out = tf.keras.layers.Reshape((-1, H, W))(out)          # (BS, C, H, W)
+
+        out = self.conv1x1_bn_relu(out, training=training)
+        if self.concat:
+            out = self.concat([out, residual])
+        else:
+            out = self.add([out, residual])
+              
+        return out
+
+class SpatialGather_Module(tf.keras.layers.Layer):
+    def __init__(self, scale=1):
+        super(SpatialGather_Module, self).__init__()
+
+        self.scale = scale
+
+        self.softmax = tf.keras.layers.Activation("softmax")
+
+    def call(self, features, probabilities, training=None):
+        if K.image_data_format() == "channels_last":
+            BS, H, W, C = probabilities.shape
+            p = tf.keras.layers.Reshape((-1, C))(probabilities)             # (BS, N, C)
+            f = tf.keras.layers.Reshape((-1, features.shape[-1]))(features) # (BS, N, C2)
+
+            p = self.softmax(self.scale * p)                                # (BS, N, C)
+            ocr_context = tf.linalg.matmul(p, f, transpose_a=True)          # (BS, C, C2)
+
+        else:
+            BS, C, H, W = probabilities.shape
+            p = tf.keras.layers.Reshape((C, -1))(probabilities)             # (BS, C, N)
+            f = tf.keras.layers.Reshape((features.shape[1], -1))(features)  # (BS, C2, N)
+            
+            p = self.softmax(self.scale * p)                                # (BS, C, N)
+            ocr_context = tf.linalg.matmul(p, f, transpose_b=True)          # (BS, C, C2)
+
+        return ocr_context
+
+class ObjectAttentionBlock2D(tf.keras.layers.Layer):
+    def __init__(self, filters, scale=1.0):
+        super(ObjectAttentionBlock2D, self).__init__()
+        self.filters = filters
+        self.scale = scale
+
+        self.max_pool2d = tf.keras.layers.MaxPooling2D(pool_size=(scale, scale))
+        self.f_pixel = tf.keras.models.Sequential([
+                                                    ConvolutionBnActivation(filters, (1, 1)),
+                                                    ConvolutionBnActivation(filters, (1, 1))
+        ])
+        # self.f_object = tf.keras.models.Sequential([
+        #                                             ConvolutionBnActivation(filters, (1, 1)),
+        #                                             ConvolutionBnActivation(filters, (1, 1))
+        # ])
+        # self.f_down = ConvolutionBnActivation(filters, (1, 1))
+        self.f_up = ConvolutionBnActivation(filters, (1, 1))
+
+        self.softmax = tf.keras.layers.Activation("softmax")
+        self.upsampling2d = tf.keras.layers.UpSampling2D(size=scale, interpolation="bilinear")
+
+    def call(self, feats, ctx, training=None):
+        if K.image_data_format() == "channels_last":
+            # feats-dim: (BS, H, W, C) & ctx-dim: (BS, C, C2)
+            ctx = tf.keras.layers.Permute((2, 1))(ctx)
+            BS, H, W, C = feats.shape
+            if self.scale > 1:
+                x = self.pool(x, training=training)
+
+            query = self.f_pixel(feats, training=training)              # (BS, H, W, C)
+            query = tf.keras.layers.Reshape((-1, C))(query)             # (BS, N, C)
+            # key = self.f_object(ctx, training=training)                 # (BS, C2, C)
+            key = tf.keras.layers.Reshape((-1, C))(ctx)                 # (BS, C2, C)
+            # value = self.f_down(ctx, training=training)                 # (BS, C2, C)
+            value = tf.keras.layers.Reshape((-1, C))(ctx)               # (BS, C2, C)
+
+            sim_map = tf.linalg.matmul(query, key, transpose_b=True)    # (BS, N, C2)
+            sim_map = (self.filters ** -0.5) * sim_map                  # (BS, N, C2)
+            sim_map = self.softmax(sim_map)                             # (BS, N, C2)
+
+            context = tf.linalg.matmul(sim_map, value)                   # (BS, N, C)
+            context = tf.keras.layers.Reshape((H, W, C))(context)       # (BS, H, W, C)
+            context = self.f_up(context, training=training)             # (BS, H, W, C)
+            if self.scale > 1:
+                context = self.upsampling2d(context)
+
+        else:
+            # feats-dim: (BS, C, H, W) & ctx-dim: (BS, C, C2)
+            BS, C, H, W = feats.shape
+            if self.scale > 1:
+                x = self.pool(x, training=training)
+
+            query = self.f_pixel(feats, training=training)              # (BS, C, H, W)
+            query = tf.keras.layers.Reshape((C, -1))(query)             # (BS, C, N)
+            # key = self.f_object(ctx, training=training)                 # (BS, C, C2)
+            key = tf.keras.layers.Reshape((C, -1))(ctx)                 # (BS, C, C2)
+            # value = self.f_down(ctx, training=training)                 # (BS, C, C2)
+            value = tf.keras.layers.Reshape((C, -1))(ctx)               # (BS, C, C2)
+
+            sim_map = tf.linalg.matmul(query, key, transpose_a=True)    # (BS, N, C2)
+            sim_map = (self.filters ** -0.5) * sim_map                  # (BS, N, C2)
+            sim_map = self.softmax(sim_map)                             # (BS, N, C2)
+
+            context = tf.linalg.matmul(sim_map, value, transpose_b=True) # (BS, N, C)
+            context = tf.keras.layers.Permute(2, 1)(context)            # (BS, C, N)
+            context = tf.keras.layers.Reshape((C, H, W))(context)       # (BS, C, H, W)
+            context = self.f_up(context, training=training)             # (BS, C, H, W)
+            if self.scale > 1:
+                context = self.upsampling2d(context)
+
+        return context
+        
+
+class SpatialOCR_Module(tf.keras.layers.Layer):
+    def __init__(self, filters, scale=1.0, dropout=0.1):
+        super(SpatialOCR_Module, self).__init__()
+        self.filters = filters
+        self.scale = scale
+        self.dropout = dropout
+
+        self.object_attention = ObjectAttentionBlock2D(filters, scale)
+
+        axis = 3 if K.image_data_format() == "channels_last" else 1
+        self.concat = tf.keras.layers.Concatenate(axis=axis)
+        self.conv1x1_bn_relu = ConvolutionBnActivation(filters, (1, 1))
+        self.dropout = tf.keras.layers.Layer(dropout)
+
+    def call(self, features, ocr_context, training=None):
+        # features-dim: (BS, H, W, C) & ocr_context-dim: (BS, C, C2) (if K.image_data_format() == "channels_last")
+        context = self.object_attention(features, ocr_context, training=training)   # (BS, H, W, C)
+        
+        output = self.concat([context, features])                                   # (BS, H, W, 2*C)
+        output = self.conv1x1_bn_relu(output, training=training)                    # (BS, H, W, C)
+        output = self.dropout(output, training=training)                            # (BS, H, W, C)
+
+        return output
+
+class SpatialOCR_ASP_Module(tf.keras.layers.Layer):
+    def __init__(self, filters, scale=1, dropout=0.1, dilations=(12, 24, 36)):
+        super(SpatialOCR_ASP_Module, self).__init__()
+        self.filters = filters
+        self.scale = scale
+        self.dropout = dropout
+        self.dilations = dilations
+
+        self.conv3x3_bn_relu_1 = ConvolutionBnActivation(filters, (3, 3))
+        self.context = ObjectAttentionBlock2D(filters, scale)
+        self.conv1x1_bn_relu_1 = ConvolutionBnActivation(filters, (1, 1))
+        self.atrous_sepconv_bn_relu_1 = AtrousSeparableConvolutionBnReLU(dilation=dilations[0], filters=filters, kernel_size=3)
+        self.atrous_sepconv_bn_relu_2 = AtrousSeparableConvolutionBnReLU(dilation=dilations[1], filters=filters, kernel_size=3)
+        self.atrous_sepconv_bn_relu_3 = AtrousSeparableConvolutionBnReLU(dilation=dilations[2], filters=filters, kernel_size=3)
+        
+        self.spatial_context = SpatialGather_Module(scale=scale)
+
+        self.axis = 3 if K.image_data_format() == "channels_last" else 1
+        self.concat = tf.keras.layers.Concatenate(axis=self.axis)
+
+        self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, (1, 1))
+        self.dropout = tf.keras.layers.Layer(dropout)
+    
+    def call(self, x, probabilities, training=None):
+        feat1 = self.conv3x3_bn_relu_1(x, training=training)
+        context = self.spatial_context(feat1, probabilities, training=training)
+        feat1 = self.context(feat1, context, training=training)
+        feat2 = self.conv1x1_bn_relu_1(x, training=training)
+        feat3 = self.atrous_sepconv_bn_relu_1(x, training=training)
+        feat4 = self.atrous_sepconv_bn_relu_2(x, training=training)
+        feat5 = self.atrous_sepconv_bn_relu_3(x, training=training)
+
+        output = self.concat([feat1, feat2, feat3, feat4, feat5])
+        output = self.conv1x1_bn_relu_2(output, training=training)
+        output = self.dropout(output, training=training)
+
+        return output
