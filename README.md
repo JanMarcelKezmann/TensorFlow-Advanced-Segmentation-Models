@@ -55,8 +55,8 @@ Then pick any model backbone from the list below and define weights, height and 
 ```python
 BACKBONE_NAME = "efficientnetb3"
 WEIGHTS = "imagenet"
-HEIGHT = 160
-WIDTH = 160
+HEIGHT = 320
+WIDTH = 320
 ```
 
 Load the data
@@ -106,11 +106,13 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1606.00915.pdf">DeepLab</a>**
 - **<a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>**
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
-- **DANet**
-- **OCNet**
+- **<a href="https://arxiv.org/pdf/1809.02983.pdf">DANet</a>**
+- **<a href="https://arxiv.org/pdf/1809.00916.pdf">OCNet</a>**
 
 Coming Soon...
-- **CFNet**
+- **<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Co-Occurrent_Features_in_Semantic_Segmentation_CVPR_2019_paper.pdf">CFNet</a>**
+- **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>**
+- **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>**
     
 **Backbones**
 (For Details see <a href="">here</a>.)
@@ -134,11 +136,11 @@ Coming Soon...
 
     @misc{Kezmann:2020,
       Author = {Jan-Marcel Kezmann},
-      Title = {Segmentation Models},
+      Title = {Tensorflow Advanced Segmentation Models},
       Year = {2020},
       Publisher = {GitHub},
       Journal = {GitHub repository},
-      Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation_Models}}
+      Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models}}
     } 
     
 ## License
