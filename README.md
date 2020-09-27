@@ -120,8 +120,8 @@ Coming Soon...
 |Type         | Names |
 |-------------|-------|
 |**VGG**          | ``'vgg16' 'vgg19'``|
-|**ResNet**       | ``''resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' ' resnet152v2``|
-|**Xception**     | ``''xception''``|
+|**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
+|**Xception**     | ``'xception'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``|
     
@@ -149,4 +149,8 @@ Project is distributed under <a href="https://github.com/JanMarcelKezmann/Tensor
 
 ## References
 <p>Thank you for all the papers that made this repository possible and especially thank you Pavel Yakubovskiy's initial segmentation models repository.</p>
-- Pavel Yakubovskiy, Segmentation Models, 2019, GitHub, GitHubRepository, https://github.com/qubvel/segmentation_models
+- Pavel Yakubovskiy, Segmentation Models, 2019, GitHub, GitHub Repository, https://github.com/qubvel/segmentation_models
+- Liang-Chieh Chen and Yukun Zhu and George Papandreou and Florian Schroff and Hartwig Adam, Tensorflow Models DeepLab, 2020, GitHub, GitHub Repository, https://github.com/tensorflow/models/tree/master/research/deeplab
+- Fu, Jun and Liu, Jing and Tian, Haijie and Li, Yong and Bao, Yongjun and Fang, Zhiwei and Lu, Hanqing, DANet, 2020, GitHub, GitHub Repository, https://github.com/junfu1115/DANet
+- Yuhui Yuan and Jingdong Wang, openseg.OCN.pytorch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/OCNet.pytorch
+- Yuhui Yuan and Xilin Chen and Jingdong Wang, openseg.pytotrch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/openseg.pytorch
