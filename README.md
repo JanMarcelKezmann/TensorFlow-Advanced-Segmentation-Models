@@ -100,22 +100,23 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 **Models**
 
 - **<a href="https://arxiv.org/pdf/1411.4038.pdf">FCN</a>**
-- **<a href="https://arxiv.org/abs/1505.04597">UNet</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="https://arxiv.org/abs/1505.04597">UNet</a>**
+- **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>**
+- **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>**
 - **<a href="https://arxiv.org/pdf/1606.00915.pdf">DeepLab</a>**
 - **<a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>**
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
 - **<a href="https://arxiv.org/pdf/1809.02983.pdf">DANet</a>**
 - **<a href="https://arxiv.org/pdf/1809.00916.pdf">OCNet</a>**
-
-Coming Soon...
 - **<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Co-Occurrent_Features_in_Semantic_Segmentation_CVPR_2019_paper.pdf">CFNet</a>**
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>**
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>**
+
+Coming Soon...
+- **ACFNet**
     
 **Backbones**
-(For Details see <a href="">here</a>.)
+(For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
 
 |Type         | Names |
 |-------------|-------|
@@ -123,7 +124,7 @@ Coming Soon...
 |**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
 |**Xception**     | ``'xception'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
-|**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``|
+|**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
 
     All backbones have weights trained on 2012 ILSVRC ImageNet dataset (``encoder_weights='imagenet'``). 
