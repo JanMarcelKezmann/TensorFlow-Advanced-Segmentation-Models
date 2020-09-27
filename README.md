@@ -2,7 +2,7 @@
 A Python Library for High-Level Semantic Segmentation Models.
 
 <p align="center">
- <img src="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/images/tasm%20logo%20big%20white%20bg.PNG" width="700" height="240">
+ <img src="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/images/tasm%20logo%20big%20white%20bg.PNG" width="700" height="220">
 </p>
 
 ## Preface
@@ -11,7 +11,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ### Main Library Features
 - High Level API
-- 8 Segmentation Model Architectures for multi-class semantic segmentation
+- 9 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses
 
@@ -29,15 +29,15 @@ A Python Library for High-Level Semantic Segmentation Models.
 <p>To get the repository running just check the following requirements.</p>
 
 **Requirements**
-1) Python 3.6
-2) tensorflow >= 2.0.0
+1) Python 3.6 or higher
+2) tensorflow >= 2.3.0 (>= 2.0.0 is sufficient if no efficientnet backbone is used)
 3) numpy
 
 <p>Furthermore just execute the following command to download and install the git repository.</p>
 
 **Source latest version**
 
-    $ pip install git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
+    $ git clone https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
 
 ## Training Pipeline
 
@@ -47,14 +47,16 @@ To import the library just use the standard python import statement:
 
    
 ```python
-import tf_advanced_segmentation_models as tasm
+import tensorflow_advanced_segmentation_models as tasm
 ```
       
-Then pick any model backbone from the list below:
+Then pick any model backbone from the list below and define weights, height and width:
 
 ```python
-BACKBONE = "efficientnetb3"
-preprocess_input = tasm.get_preprocessing(BACKBONE)
+BACKBONE_NAME = "efficientnetb3"
+WEIGHTS = "imagenet"
+HEIGHT = 320
+WIDTH = 320
 ```
 
 Load the data
@@ -63,18 +65,17 @@ Load the data
 X_train, y_train, X_val, y_val = get_data(...)
 ```
 
-and preprocees it:
-    
+Create the base model that works as backbone for the segmentation model:
+
 ```python
-X_train = preprocess_input(X_train)
-y_train = preprocess_input(y_train)
+base_model, layers, layer_names = tasm.create_base_model(name=BACKBONE_NAME, weights=WEIGHTS, height=HEIGHT, width=WIDTH, include_top=False, pooling=None)
 ```
 
 Define a Model and compile it with an appropriate loss:
  
 ```python
-model = tasm.DeepLabV3Plus(BACKBONE, encoder_weights="imagenet")
-model.compile(keras.optimizers.Adam(0.0001, loss=kasm.losses.CategoricalFocalLoss, kasm.metrics.IOUScore(threshold=0.5))
+model = tasm.DANet(n_classes=3, base_model=base_model, output_layers=layers, backbone_trainable=False)
+model.compile(tf.keras.optimizers.Adam(0.0001), loss=tasm.losses.CategoricalFocalLoss, tasm.metrics.IOUScore(threshold=0.5))
 ```
 
 Now finally train the model:
@@ -99,24 +100,31 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 **Models**
 
 - **<a href="https://arxiv.org/pdf/1411.4038.pdf">FCN</a>**
-- **<a href="https://arxiv.org/abs/1505.04597">UNet</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="https://arxiv.org/abs/1707.03718">Linknet</a>** (Orig<a href=""> qubvel </a>Code)
-- **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>** (Orig<a href=""> qubvel </a>Code)
+- **<a href="https://arxiv.org/abs/1505.04597">UNet</a>**
+- **<a href="http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf">FPN</a>**
+- **<a href="https://arxiv.org/abs/1612.01105">PSPNet</a>**
 - **<a href="https://arxiv.org/pdf/1606.00915.pdf">DeepLab</a>**
 - **<a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>**
 - **<a href="https://arxiv.org/pdf/1802.02611.pdf">DeepLabV3+</a>**
+- **<a href="https://arxiv.org/pdf/1809.02983.pdf">DANet</a>**
+- **<a href="https://arxiv.org/pdf/1809.00916.pdf">OCNet</a>**
+- **<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Co-Occurrent_Features_in_Semantic_Segmentation_CVPR_2019_paper.pdf">CFNet</a>**
+- **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>**
+- **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>**
+
+Coming Soon...
+- **ACFNet**
     
 **Backbones**
-(For Details see <a href="">here</a>.)
+(For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
 
 |Type         | Names |
 |-------------|-------|
 |**VGG**          | ``'vgg16' 'vgg19'``|
-|**ResNet**       | ``''resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' ' resnet152v2``|
-|**Xception**     | ``''xception''``|
+|**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
+|**Xception**     | ``'xception'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
-|**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' efficientnetb6' efficientnetb7'``|
+|**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
 
     All backbones have weights trained on 2012 ILSVRC ImageNet dataset (``encoder_weights='imagenet'``). 
@@ -129,11 +137,11 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 
     @misc{Kezmann:2020,
       Author = {Jan-Marcel Kezmann},
-      Title = {Segmentation Models},
+      Title = {Tensorflow Advanced Segmentation Models},
       Year = {2020},
       Publisher = {GitHub},
       Journal = {GitHub repository},
-      Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation_Models}}
+      Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models}}
     } 
     
 ## License
@@ -142,4 +150,8 @@ Project is distributed under <a href="https://github.com/JanMarcelKezmann/Tensor
 
 ## References
 <p>Thank you for all the papers that made this repository possible and especially thank you Pavel Yakubovskiy's initial segmentation models repository.</p>
-- Pavel Yakubovskiy, Segmentation Models, 2019, GitHub, GitHubRepository, https://github.com/qubvel/segmentation_models
+- Pavel Yakubovskiy, Segmentation Models, 2019, GitHub, GitHub Repository, https://github.com/qubvel/segmentation_models
+- Liang-Chieh Chen and Yukun Zhu and George Papandreou and Florian Schroff and Hartwig Adam, Tensorflow Models DeepLab, 2020, GitHub, GitHub Repository, https://github.com/tensorflow/models/tree/master/research/deeplab
+- Fu, Jun and Liu, Jing and Tian, Haijie and Li, Yong and Bao, Yongjun and Fang, Zhiwei and Lu, Hanqing, DANet, 2020, GitHub, GitHub Repository, https://github.com/junfu1115/DANet
+- Yuhui Yuan and Jingdong Wang, openseg.OCN.pytorch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/OCNet.pytorch
+- Yuhui Yuan and Xilin Chen and Jingdong Wang, openseg.pytotrch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/openseg.pytorch
