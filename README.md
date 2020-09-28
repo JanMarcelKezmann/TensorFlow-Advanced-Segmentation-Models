@@ -114,7 +114,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ASPOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 
 Coming Soon...
-- **ACFNet**
+- <a href="https://arxiv.org/pdf/1909.09408.pdf">**ACFNet**</a>
     
 **Backbones**
 (For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
@@ -157,3 +157,4 @@ Project is distributed under <a href="https://github.com/JanMarcelKezmann/Tensor
  - Fu, Jun and Liu, Jing and Tian, Haijie and Li, Yong and Bao, Yongjun and Fang, Zhiwei and Lu, Hanqing, DANet, 2020, GitHub, GitHub Repository, https://github.com/junfu1115/DANet
  - Yuhui Yuan and Jingdong Wang, openseg.OCN.pytorch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/OCNet.pytorch
  - Yuhui Yuan and Xilin Chen and Jingdong Wang, openseg.pytotrch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/openseg.pytorch
+ - Fan Zhang, Yanqin Chen, Zhihang Li, Zhibin Hong, Jingtuo Liu, Feifei Ma, Junyu Han, Errui Ding, 2020, GitHub, GitHub Repository, https://github.com/zrl4836/ACFNet
