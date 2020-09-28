@@ -78,6 +78,20 @@ def recall(y_true, y_pred, class_weights=1., smooth=1e-5, threshold=None):
 
     return score
 
+def tversky(y_true, y_pred, alpha=0.7, class_weights=1., smooth=1e-5, threshold=None):
+    y_true, y_pred = gather_channels(y_true, y_pred)
+    y_pred = round_if_needed(y_pred, threshold)
+    axes = [1, 2] if K.image_data_format() == "channels_last" else [2, 3]
+    
+    tp = K.sum(y_true * y_pred, axis=axes)
+    fp = K.sum(y_pred, axis=axes) - tp
+    fn = K.sum(y_true, axis=axes) - tp
+
+    score = (tp + smooth) / (tp + alpha * fn + (1 - alpha) * fp + smooth)
+    score = average(score, class_weights)
+
+    return score
+
 
 ################################################################################
 # Loss Functions
@@ -117,3 +131,26 @@ def binary_focal_loss(y_true, y_pred, gamma=2.0, alpha=0.25):
     loss_b = - (1 - y_true) * ((1 - alpha) * K.pow((y_pred), gamma) * K.log(1 - y_pred))
     
     return K.mean(loss_a + loss_b)
+
+def combo(y_true, y_pred, alpha=0.5, beta=1.0, ce_ratio=0.5, class_weights=1., smooth=1e-5, threshold=None):
+    # alpha < 0.5 penalizes FP more, alpha > 0.5 penalizes FN more
+
+    y_true, y_pred = gather_channels(y_true, y_pred)
+    y_pred = round_if_needed(y_pred, threshold)
+    axes = [1, 2] if K.image_data_format() == "channels_last" else [2, 3]
+    
+    tp = K.sum(y_true * y_pred, axis=axes)
+    fp = K.sum(y_pred, axis=axes) - tp
+    fn = K.sum(y_true, axis=axes) - tp
+
+    dice = ((1.0 + beta) * tp + smooth) / ((1.0 + beta) * tp + (beta ** 2.0) * fn + fp + smooth)
+
+    y_pred = K.clip(y_pred, K.epsilon(), 1.0 - K.epsilon())
+
+    ce = - (alpha * (y_true * K.log(y_pred))) + ((1 - alpha) * (1.0 - y_true) * K.log(1.0 - y_pred))
+    ce = K.mean(ce, axis=axes)
+
+    combo = (ce_ratio * ce) - ((1 - ce_ratio) * dice)
+    loss = average(combo, class_weights)
+
+    return loss
