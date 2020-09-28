@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-from ._custom_layers_and_blocks import ConvolutionBnActivation, GlobalPooling, ACF_Module
+from ._custom_layers_and_blocks import ConvolutionBnActivation, GlobalPooling, AggCF_Module
 from ..backbones.tf_backbones import create_base_model
 
 ################################################################################
@@ -45,7 +45,7 @@ class CFNet(tf.keras.Model):
 
         self.glob_pool = GlobalPooling(filters)
 
-        self.acf = ACF_Module(filters, kq_transform=self.acf_kq_transform, value_transform="conv",
+        self.acf = AggCF_Module(filters, kq_transform=self.acf_kq_transform, value_transform="conv",
                               pooling=self.acf_pool, concat=self.acf_concat, dropout=0.1)
         
         self.final_conv3x3_bn_activation = ConvolutionBnActivation(n_classes, (3, 3), post_activation=final_activation)

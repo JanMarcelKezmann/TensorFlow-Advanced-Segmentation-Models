@@ -683,10 +683,10 @@ class MixtureOfSoftMaxACF(tf.keras.layers.Layer):
 
         return out
 
-class ACF_Module(tf.keras.layers.Layer):
+class AggCF_Module(tf.keras.layers.Layer):
     def __init__(self, filters, kq_transform="conv", value_transform="conv",
                  pooling=True, concat=False, dropout=0.1):
-        super(ACF_Module, self).__init__()
+        super(AggCF_Module, self).__init__()
         self.filters = filters
         self.kq_transform = kq_transform
         self.value_transform = value_transform
