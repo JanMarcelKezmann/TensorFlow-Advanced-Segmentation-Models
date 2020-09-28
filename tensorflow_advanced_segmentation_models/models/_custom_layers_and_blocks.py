@@ -962,3 +962,54 @@ class SpatialOCR_ASP_Module(tf.keras.layers.Layer):
         output = self.dropout(output, training=training)
 
         return output
+
+class AttCF_Module(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(AttCF_Module, self).__init__()
+
+        self.filters = filters
+
+        self.softmax = tf.keras.layers.Activation("softmax")
+        self.conv1x1 = tf.keras.layers.Conv2D(filters, (1, 1), padding="same")
+
+    def call(self, aspp, coarse_x, training=None):
+        if K.image_data_format() == "channels_last":
+            BS, H, W, C = aspp.shape
+            _, h, w, c = coarse_x.shape
+
+            # CCB
+            q = tf.keras.layers.Reshape((-1, c))(coarse_x)          # (BS, N, c)
+            k = tf.keras.layers.Reshape((-1, C))(aspp)              # (BS, N, C)
+
+            e = tf.linalg.matmul(q, k, transpose_a=True)            # (BS, c, C)
+            e = tf.math.reduce_max(e, -1, keepdims=True)[0] - e     # (BS, c, C)
+            att = self.softmax(e)                                   # (BS, c, C)
+
+            # CAB
+            v = tf.keras.layers.Reshape((-1, c))(coarse_x)          # (BS, N, c)
+            output = tf.linalg.matmul(att, v, transpose_a=True, transpose_b=True) # (BS, C, N)
+            output = tf.keras.layers.Permute((2, 1))(output)        # (BS, N, C)
+            output = tf.keras.layers.Reshape((H, W, C))(output)     # (BS, H, W, C)
+
+            output = self.conv1x1(output)                           # (BS, H, W, C)
+
+        else:
+            BS, C, H, W = aspp.shape
+            bs, c, h, w = coarse_x.shape
+
+            # CCB
+            q = tf.keras.layers.Reshape((c, -1))(coarse_x)
+            k = tf.keras.layers.Reshape((C, -1))(aspp)
+
+            e = tf.linalg.matmul(q, k, transpose_b=True)            # (BS, c, C)
+            e = tf.math.reduce_max(e, -1, keepdims=True)[0] - e     # (BS, c, C)
+            att = self.softmax(e)                                   # (BS, c, C)
+
+            # CAB
+            v = tf.keras.layers.Reshape((c, -1))(coarse_x)          # (BS, c, N)
+            output = tf.linalg.matmul(att, v, transpose_a=True)     # (BS, C, N)
+            output = tf.keras.layers.Reshape((C, H, W))(output)
+
+            output = self.conv1x1(output)
+
+        return output
