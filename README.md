@@ -11,7 +11,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ### Main Library Features
 - High Level API
-- 9 Segmentation Model Architectures for multi-class semantic segmentation
+- 12 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses
 
@@ -92,6 +92,7 @@ history = model.fit(
  
 You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
+
 ## Examples
 - [Jupyter Notebook] Multi-class segmentation (sky, building) on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_1.ipynb">here</a>
 
@@ -110,7 +111,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1809.00916.pdf">OCNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/OCNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - **<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Co-Occurrent_Features_in_Semantic_Segmentation_CVPR_2019_paper.pdf">CFNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/CFNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/SpatialOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
-- **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>**
+- **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ASPOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 
 Coming Soon...
 - **ACFNet**
@@ -127,7 +128,7 @@ Coming Soon...
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
 
-    All backbones have weights trained on 2012 ILSVRC ImageNet dataset (``encoder_weights='imagenet'``). 
+    All backbones have weights trained on 2012 ILSVRC ImageNet dataset. 
 
 ## Documentation
 
