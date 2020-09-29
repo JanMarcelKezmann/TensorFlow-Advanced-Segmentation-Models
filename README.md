@@ -11,9 +11,9 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ### Main Library Features
 - High Level API
-- 12 Segmentation Model Architectures for multi-class semantic segmentation
+- 13 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
-- Many useful segmentation losses
+- Many useful segmentation losses (Dice, Focal, Tversky, Jaccard and many more combinations of them)
 
 ## Table of Contents
 
@@ -112,9 +112,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Co-Occurrent_Features_in_Semantic_Segmentation_CVPR_2019_paper.pdf">CFNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/CFNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/SpatialOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ASPOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
-
-Coming Soon...
-- <a href="https://arxiv.org/pdf/1909.09408.pdf">**ACFNet**</a>
+- <a href="https://arxiv.org/pdf/1909.09408.pdf">**ACFNet**</a> &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ACFNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
     
 **Backbones**
 (For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
