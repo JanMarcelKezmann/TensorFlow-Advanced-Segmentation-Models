@@ -123,7 +123,8 @@ class BinaryFocalLoss(Loss):
     def __call__(self, y_true, y_pred):
         return binary_focal_loss(y_true, y_pred, alpha=self.alpha, gamma=self.gamma)
 
-        class ComboLoss(Loss):
+
+class ComboLoss(Loss):
     def __init__(self, alpha=0.5, beta=1.0, ce_ratio=0.5, class_weights=None, smooth=1e-5):
         super().__init__(name="combo_loss")
         self.alpha = alpha
