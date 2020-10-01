@@ -1,11 +1,8 @@
 import tensorflow as tf
 
-from ._custom_layers_and_blocks import ConvolutionBnActivation, 
+from ._custom_layers_and_blocks import ConvolutionBnActivation, AtrousSpatialPyramidPoolingV3, AttCF_Module
 from ..backbones.tf_backbones import create_base_model
 
-################################################################################
-# ACFNet
-################################################################################
 ################################################################################
 # Attentional Class Feature Network
 ################################################################################
