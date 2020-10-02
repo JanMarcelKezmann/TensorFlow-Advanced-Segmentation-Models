@@ -94,7 +94,8 @@ You can use the fit_generator method too, e.g. if you want to apply augmentation
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
 
 ## Examples
-- [Jupyter Notebook] Multi-class segmentation (sky, building) on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_1.ipynb">here</a>
+- [Jupyter Notebook] Multi-class (3 classes) segmentation (sky, building, background) on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_1.ipynb">here</a>
+- [Jupyter Notebook] Multi-class (11 classes) segmentation on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_2.ipynb">here</a>
 
 ## Models and Backbones
 
