@@ -19,9 +19,10 @@ A Python Library for High-Level Semantic Segmentation Models.
 
  - [Installation and Setup](#installation-and-setup)
  - [Training Pipeline](#training-pipeline)
- - [Documentation](#documentation)
- - [Change Log](#change-log)
+ - [Examples](#examples)
+ - [Models and Backbones](#models-and-backbones)
  - [Citing](#citing)
+ - [License](#license)
  - [References](#references)
 
 ## Installation and Setup
@@ -96,6 +97,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 ## Examples
 - [Jupyter Notebook] Multi-class (3 classes) segmentation (sky, building, background) on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_1.ipynb">here</a>
 - [Jupyter Notebook] Multi-class (11 classes) segmentation on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_2.ipynb">here</a>
+- [Jupyter Notebook] Multi-class (11 classes) segmentation on CamVid dataset with a custom training loop<a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_3.ipynb">here</a>
 
 ## Models and Backbones
 
@@ -128,10 +130,6 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
     
 
     All backbones have weights trained on 2012 ILSVRC ImageNet dataset. 
-
-## Documentation
-
-## Change Log
 
 ## Citing
 
