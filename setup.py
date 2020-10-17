@@ -1,5 +1,6 @@
 import io
 import os
+import sys
 import setuptools
 
 # Package meta-data.
@@ -11,6 +12,7 @@ AUTHOR = 'Jan-Marcel Kezmann'
 REQUIRES_PYTHON = '>=3.6.0'
 VERSION = None
 
+here = os.path.abspath(os.path.dirname(__file__))
 
 try:
     with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
