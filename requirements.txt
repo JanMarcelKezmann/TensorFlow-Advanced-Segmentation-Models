@@ -1,4 +1,3 @@
 tensorflow>=2.0.0
-pydensecrf
 numpy
 matplotlib
