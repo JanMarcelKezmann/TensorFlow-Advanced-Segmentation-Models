@@ -10,7 +10,7 @@ URL = 'https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Mode
 EMAIL = 'jankezmann@t-online.de'
 AUTHOR = 'Jan-Marcel Kezmann'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = 0.1.0
+VERSION = None
 
 here = os.path.abspath(os.path.dirname(__file__))
 
