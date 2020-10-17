@@ -36,9 +36,14 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 <p>Furthermore just execute the following command to download and install the git repository.</p>
 
-**Source latest version**
+**Clone Repository**
 
-    $ git clone https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models
+    $ git clone https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models.git
+
+or directly install it:<br>
+**Pip Install Repository**
+
+    $ pip install git+https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models.git
 
 ## Training Pipeline
 
