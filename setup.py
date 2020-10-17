@@ -1,3 +1,5 @@
+import io
+import os
 import setuptools
 
 # Package meta-data.
