@@ -4,13 +4,13 @@ import sys
 import setuptools
 
 # Package meta-data.
-NAME = 'TensorFlow-Advanced-Segmentation-Models'
+NAME = 'tensorflow_advanced_segmentation_models'
 DESCRIPTION = 'A Python Library for High-Level Semantic Segmentation Models based on TensorFlow and Keras.'
 URL = 'https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models'
 EMAIL = 'jankezmann@t-online.de'
 AUTHOR = 'Jan-Marcel Kezmann'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = None
+VERSION = 0.1.0
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -30,11 +30,11 @@ except FileNotFoundError:
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
-#if not VERSION:
-#    with open(os.path.join(here, NAME, 'tensorflow_advanced_segmentation_models/__version__.py')) as f:
-#        exec(f.read(), about)
-#else:
-about['__version__'] = VERSION
+if not VERSION:
+   with open(os.path.join(here, NAME, '__version__.py')) as f:
+       exec(f.read(), about)
+else:
+    about['__version__'] = VERSION
 
 
 with open("README.md", "r") as fh:
