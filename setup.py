@@ -30,11 +30,11 @@ except FileNotFoundError:
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
-if not VERSION:
-    with open(os.path.join(here, NAME, 'tensorflow_advanced_segmentation_models/__version__.py')) as f:
-        exec(f.read(), about)
-else:
-    about['__version__'] = VERSION
+#if not VERSION:
+#    with open(os.path.join(here, NAME, 'tensorflow_advanced_segmentation_models/__version__.py')) as f:
+#        exec(f.read(), about)
+#else:
+about['__version__'] = VERSION
 
 
 with open("README.md", "r") as fh:
