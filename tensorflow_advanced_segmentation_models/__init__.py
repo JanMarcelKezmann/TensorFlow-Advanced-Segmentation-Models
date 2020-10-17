@@ -1,3 +1,4 @@
+from .__version__ import __version__
 from . import base
 from . import losses
 from . import metrics
