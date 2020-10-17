@@ -37,8 +37,8 @@ else:
     about['__version__'] = VERSION
 
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+# with open("README.md", "r") as fh:
+#     long_description = fh.read()
 
 setuptools.setup(
     name=NAME,
@@ -49,7 +49,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=URL,
-    packages=setuptools.find_packages("images", "examples"),
+    packages=setuptools.find_packages(exclude=("images", "examples")),
     install_requires=REQUIRED,
     include_package_data=True,
     license='MIT',
