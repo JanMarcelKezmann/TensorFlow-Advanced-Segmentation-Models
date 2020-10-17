@@ -51,7 +51,6 @@ setuptools.setup(
     url=URL,
     packages=setuptools.find_packages("images", "examples"),
     install_requires=REQUIRED,
-    extras_require=EXTRAS,
     include_package_data=True,
     license='MIT',
     classifiers=[
