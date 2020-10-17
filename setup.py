@@ -4,7 +4,7 @@ import sys
 import setuptools
 
 # Package meta-data.
-NAME = 'TensorFlow Advanced Segmentation Models'
+NAME = 'TensorFlow-Advanced-Segmentation-Models'
 DESCRIPTION = 'A Python Library for High-Level Semantic Segmentation Models based on TensorFlow and Keras.'
 URL = 'https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models'
 EMAIL = 'jankezmann@t-online.de'
