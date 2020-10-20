@@ -14,6 +14,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 - 13 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses (Dice, Focal, Tversky, Jaccard and many more combinations of them)
+- Models can be used as Subclassed or Functional Model
 
 ## Table of Contents
 
@@ -84,6 +85,13 @@ model = tasm.DANet(n_classes=3, base_model=base_model, output_layers=layers, bac
 model.compile(tf.keras.optimizers.Adam(0.0001), loss=tasm.losses.CategoricalFocalLoss, tasm.metrics.IOUScore(threshold=0.5))
 ```
 
+If you want to use the Functional Model class define instead:
+
+```python
+model = tasm.DANet(n_classes=3, base_model=base_model, output_layers=layers, backbone_trainable=False).model()
+model.compile(tf.keras.optimizers.Adam(0.0001), loss=tasm.losses.CategoricalFocalLoss, tasm.metrics.IOUScore(threshold=0.5))
+```
+
 Now finally train the model:
 
 ```python
@@ -134,7 +142,11 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
 
-    All backbones have weights trained on 2012 ILSVRC ImageNet dataset. 
+    All backbones have weights trained on 2012 ILSVRC ImageNet dataset.
+    
+**Further Model Information**
+
+<p>A new feature makes it possible to define the model as a Subclassed Model or as a Functional Model instead. To define the model as a Subclassed Model just write: **tasm.UNet** to define the UNet or replace it with any other model. If you want to define the Functional Model instead just append **.model()**, i.e. **tasm.UNet.model()**</p>
 
 ## Citing
 
