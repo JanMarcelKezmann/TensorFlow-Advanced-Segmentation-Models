@@ -351,44 +351,6 @@ class AtrousSpatialPyramidPoolingV1(tf.keras.layers.Layer):
 
         return x
 
-class SelfAttentionBlock2D(tf.keras.layers.Layer):
-    def __init__(self, filters):
-        super(SelfAttentionBlock2D, self).__init__()
-
-        self.filters = filters
-
-        self.conv1x1_1 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
-        self.conv1x1_2 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
-        self.conv1x1_3 = tf.keras.layers.Conv2D(filters // 2, (1, 1), padding="same")
-        self.conv1x1_4 = tf.keras.layers.Conv2D(filters, (1, 1), padding="same")
-        
-        self.softmax_activation = tf.keras.layers.Activation("softmax")
-
-    def call(self, x, training=None):
-        f = self.conv1x1_1(x, training=training)
-
-        g = self.conv1x1_2(x, training=training)
-
-        h = self.conv1x1_3(x, training=training)
-
-        g = tf.reshape(g, (g.shape[0], -1, g.shape[-1]))
-        f = tf.reshape(f, (f.shape[0], -1, f.shape[-1]))
-
-        # s = tf.matmul(tf.reshape(g, (x.shape[0], -1, x.shape[-1])), tf.reshape(f, (x.shape[0], -1, x.shape[-1])), transpose_b=True)
-        s = tf.matmul(g, f, transpose_b=True)
-        beta = self.softmax_activation(s)
-
-        h = tf.reshape(h, (h.shape[0], -1, h.shape[-1]))
-
-        o = tf.matmul(beta, h)
-        gamma = tf.Variable(0.0, trainable=training, name="gamma")
-
-        o = tf.reshape(o, shape=(x.shape[0], x.shape[1], x.shape[2], x.shape[3] // 2))
-        o = self.conv1x1_4(o, training=training)
-        x = gamma * o + x
-
-        return x
-
 class Base_OC_Module(tf.keras.layers.Layer):
     def __init__(self, filters):
         super(Base_OC_Module, self).__init__()
@@ -518,6 +480,7 @@ class ASP_OC_Module(tf.keras.layers.Layer):
 
         return x
 
+
 class PAM_Module(tf.keras.layers.Layer):
     def __init__(self, filters):
         super(PAM_Module, self).__init__()
@@ -531,8 +494,18 @@ class PAM_Module(tf.keras.layers.Layer):
         self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, (1, 1))
         self.conv1x1_bn_relu_3 = ConvolutionBnActivation(filters, (1, 1))
 
-        self.softmax = tf.keras.layers.Activation("softmax")
+        self.gamma = None
 
+        self.softmax = tf.keras.layers.Activation("softmax")
+    
+    def build(self, input_shape):
+        self.gamma = self.add_weight(
+            shape=(1,),
+            initializer="random_normal",
+            name="pam_gamma",
+            trainable=True,
+            )
+    
     def call(self, x, training=None):
         BS, C, H, W = x.shape
 
@@ -542,7 +515,7 @@ class PAM_Module(tf.keras.layers.Layer):
         if K.image_data_format() == "channels_last":
             query = tf.keras.layers.Reshape((H * W, -1))(query) 
             key = tf.keras.layers.Reshape((H * W, -1))(key)
-            
+
             energy = tf.linalg.matmul(query, key, transpose_b=True)
         else:
             query = tf.keras.layers.Reshape((-1, H * W))(query)
@@ -562,9 +535,7 @@ class PAM_Module(tf.keras.layers.Layer):
             out = tf.linalg.matmul(value, attention)
 
         out = tf.keras.layers.Reshape(x.shape[1:])(out)
-
-        gamma = tf.Variable(0.0, trainable=training, name="pam_gamma")
-        out = gamma * out + x
+        out = self.gamma * out + x
 
         return out
 
@@ -574,8 +545,18 @@ class CAM_Module(tf.keras.layers.Layer):
 
         self.filters = filters
 
+        self.gamma = None
+
         self.softmax = tf.keras.layers.Activation("softmax")
 
+    def build(self, input_shape):
+        self.gamma = self.add_weight(
+            shape=(1,),
+            initializer="random_normal",
+            name="cam_gamma",
+            trainable=True,
+            )
+    
     def call(self, x, training=None):
         BS, C, H, W = x.shape
 
@@ -602,12 +583,57 @@ class CAM_Module(tf.keras.layers.Layer):
             out = tf.linalg.matmul(attention, value)
 
         out = tf.keras.layers.Reshape(x.shape[1:])(out)
-
-        gamma = tf.Variable(0.0, trainable=training, name="cam_gamma")
-        out = gamma * out + x
+        out = self.gamma * out + x
 
         return out
 
+
+class SelfAttentionBlock2D(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(SelfAttentionBlock2D, self).__init__()
+
+        self.filters = filters
+
+        self.conv1x1_1 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
+        self.conv1x1_2 = tf.keras.layers.Conv2D(filters // 8, (1, 1), padding="same")
+        self.conv1x1_3 = tf.keras.layers.Conv2D(filters // 2, (1, 1), padding="same")
+        self.conv1x1_4 = tf.keras.layers.Conv2D(filters, (1, 1), padding="same")
+
+        self.gamma = None
+        
+        self.softmax_activation = tf.keras.layers.Activation("softmax")
+
+    def build(self, input_shape):
+        self.gamma = self.add_weight(
+            shape=(1,),
+            initializer="random_normal",
+            name="gamma",
+            trainable=True,
+            )
+
+    def call(self, x, training=None):
+        f = self.conv1x1_1(x, training=training)
+
+        g = self.conv1x1_2(x, training=training)
+
+        h = self.conv1x1_3(x, training=training)
+
+        g = tf.reshape(g, (g.shape[0], -1, g.shape[-1]))
+        f = tf.reshape(f, (f.shape[0], -1, f.shape[-1]))
+
+        # s = tf.matmul(tf.reshape(g, (x.shape[0], -1, x.shape[-1])), tf.reshape(f, (x.shape[0], -1, x.shape[-1])), transpose_b=True)
+        s = tf.matmul(g, f, transpose_b=True)
+        beta = self.softmax_activation(s)
+
+        h = tf.reshape(h, (h.shape[0], -1, h.shape[-1]))
+
+        o = tf.matmul(beta, h)
+
+        o = tf.reshape(o, shape=(x.shape[0], x.shape[1], x.shape[2], x.shape[3] // 2))
+        o = self.conv1x1_4(o, training=training)
+        x = self.gamma * o + x
+
+        return x
 
 class GlobalPooling(tf.keras.layers.Layer):
     def __init__(self, filters):
