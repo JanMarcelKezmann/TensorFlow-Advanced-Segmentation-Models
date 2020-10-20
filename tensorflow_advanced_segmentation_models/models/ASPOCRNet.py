@@ -8,7 +8,7 @@ from ..backbones.tf_backbones import create_base_model
 # ASP Object-Contextual Representations Network
 ################################################################################
 class ASPOCRNet(tf.keras.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  spatial_context_scale=1, **kwargs):
         super(ASPOCRNet, self).__init__(**kwargs)
@@ -18,6 +18,9 @@ class ASPOCRNet(tf.keras.Model):
         self.filters = filters
         self.final_activation = final_activation
         self.spatial_context_scale = spatial_context_scale
+        self.height = height
+        self.width = width
+
 
         output_layers = output_layers[:4]
 
@@ -54,5 +57,5 @@ class ASPOCRNet(tf.keras.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

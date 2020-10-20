@@ -8,7 +8,7 @@ from ..backbones.tf_backbones import create_base_model
 # Fully Convolutional Network
 ################################################################################
 class FCN(tf.keras.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  backbone_output_factor=32, **kwargs):
         super(FCN, self).__init__(**kwargs)
@@ -18,6 +18,9 @@ class FCN(tf.keras.Model):
         self.final_activation = final_activation
         self.filters = filters
         self.backbone_output_factor = backbone_output_factor
+        self.height = height
+        self.width = width
+
         
         if self.backbone_output_factor == 32:
             output_layers = output_layers[:5]
@@ -59,5 +62,5 @@ class FCN(tf.keras.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

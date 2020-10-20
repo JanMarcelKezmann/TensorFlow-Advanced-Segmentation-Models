@@ -7,7 +7,7 @@ from ..backbones.tf_backbones import create_base_model
 # UNet
 ################################################################################
 class UNet(tf.keras.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=128,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=128,
                  final_activation="softmax", backbone_trainable=False,
                  up_filters=[32, 64, 128, 256, 512], include_top_conv=True, **kwargs):
         super(UNet, self).__init__(**kwargs)
@@ -18,6 +18,9 @@ class UNet(tf.keras.Model):
         self.filters = filters
         self.up_filters = up_filters
         self.include_top_conv = include_top_conv
+        self.height = height
+        self.width = width
+
 
         base_model.trainable = backbone_trainable
         self.backbone = tf.keras.Model(inputs=base_model.input, outputs=output_layers)
@@ -60,5 +63,5 @@ class UNet(tf.keras.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

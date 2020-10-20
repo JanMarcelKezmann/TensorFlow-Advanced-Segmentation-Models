@@ -8,7 +8,7 @@ from ..backbones.tf_backbones import create_base_model
 # Pyramid Scene Parsing Network
 ################################################################################
 class PSPNet(tf.keras.models.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  dropout=None, pooling_type="avg", final_upsample_factor=2, **kwargs):
         super(PSPNet, self).__init__()
@@ -20,6 +20,9 @@ class PSPNet(tf.keras.models.Model):
         self.dropout = dropout
         self.pooling_type = pooling_type
         self.final_upsample_factor = final_upsample_factor
+        self.height = height
+        self.width = width
+
 
         axis = 3 if K.image_data_format() == "channels_last" else 1
 
@@ -91,5 +94,5 @@ class PSPNet(tf.keras.models.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

@@ -9,7 +9,7 @@ from ..backbones.tf_backbones import create_base_model
 ################################################################################
 class CFNet(tf.keras.Model):
     # Co-occurent Feature Network
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  lateral=True, global_pool=False, acf_pool=True,
                  acf_kq_transform="conv", acf_concat=False, **kwargs):
@@ -24,6 +24,9 @@ class CFNet(tf.keras.Model):
         self.acf_pool = acf_pool
         self.acf_kq_transform = acf_kq_transform
         self.acf_concat = acf_concat
+        self.height = height
+        self.width = width
+
 
         output_layers = output_layers[:4]
 
@@ -79,5 +82,5 @@ class CFNet(tf.keras.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

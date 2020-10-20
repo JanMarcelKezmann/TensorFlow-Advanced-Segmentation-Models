@@ -8,7 +8,7 @@ from ..backbones.tf_backbones import create_base_model
 # DeepLab
 ################################################################################
 class DeepLab(tf.keras.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  final_upsample_factor=8, **kwargs):
         super(DeepLab, self).__init__(**kwargs)
@@ -18,6 +18,9 @@ class DeepLab(tf.keras.Model):
         self.final_activation = final_activation
         self.filters = filters
         self.final_upsample_factor = final_upsample_factor
+        self.height = height
+        self.width = width
+
 
         if self.final_upsample_factor == 16:
             output_layers = output_layers[:4]
@@ -53,5 +56,5 @@ class DeepLab(tf.keras.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

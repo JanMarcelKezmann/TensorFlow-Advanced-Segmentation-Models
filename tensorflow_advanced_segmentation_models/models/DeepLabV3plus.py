@@ -7,7 +7,7 @@ from ..backbones.tf_backbones import create_base_model
 # DeepLabV3+
 ################################################################################
 class DeepLabV3plus(tf.keras.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=256,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=256,
                  final_activation="softmax", backbone_trainable=False,
                  output_stride=8, dilations=[6, 12, 18], **kwargs):
         super(DeepLabV3plus, self).__init__(**kwargs)
@@ -18,6 +18,9 @@ class DeepLabV3plus(tf.keras.Model):
         self.final_activation = final_activation
         self.output_stride = output_stride
         self.dilations = dilations
+        self.height = height
+        self.width = width
+
 
         if self.output_stride == 8:
             self.upsampling2d_1 = tf.keras.layers.UpSampling2D(size=2, interpolation="bilinear")
@@ -81,5 +84,5 @@ class DeepLabV3plus(tf.keras.Model):
         return decoder
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))

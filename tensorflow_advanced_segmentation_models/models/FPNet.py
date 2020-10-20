@@ -8,7 +8,7 @@ from ..backbones.tf_backbones import create_base_model
 # Feature Pyramid Network
 ################################################################################
 class FPNet(tf.keras.models.Model):
-    def __init__(self, n_classes, base_model, output_layers, filters=128,
+    def __init__(self, n_classes, base_model, output_layers, height=None, width=None, filters=128,
                  final_activation="softmax", backbone_trainable=False,
                  pyramid_filters=256, aggregation="sum", dropout=None, **kwargs):
         super(FPNet, self).__init__()
@@ -20,6 +20,9 @@ class FPNet(tf.keras.models.Model):
         self.pyramid_filters = pyramid_filters
         self.aggregation = aggregation
         self.dropout = dropout
+        self.height = height
+        self.width = width
+
 
         self.axis = 3 if K.image_data_format() == "channels_last" else 1
 
@@ -108,5 +111,5 @@ class FPNet(tf.keras.models.Model):
         return x
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
