@@ -79,3 +79,7 @@ class DeepLabV3plus(tf.keras.Model):
         decoder = self.final_activation(decoder)
 
         return decoder
+
+    def model(self):
+        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        return tf.keras.Model(inputs=[x], outputs=self.call(x))

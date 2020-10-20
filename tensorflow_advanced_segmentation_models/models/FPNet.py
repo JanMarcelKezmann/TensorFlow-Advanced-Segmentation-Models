@@ -106,3 +106,7 @@ class FPNet(tf.keras.models.Model):
         x = self.final_activation(x)
 
         return x
+
+    def model(self):
+        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        return tf.keras.Model(inputs=[x], outputs=self.call(x))

@@ -57,3 +57,7 @@ class FCN(tf.keras.Model):
         x = self.final_conv1x1_bn_activation(upsample, training=training)
 
         return x
+
+    def model(self):
+        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        return tf.keras.Model(inputs=[x], outputs=self.call(x))
