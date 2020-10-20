@@ -146,7 +146,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
     
 **Further Model Information**
 
-<p>A new feature makes it possible to define the model as a Subclassed Model or as a Functional Model instead. To define the model as a Subclassed Model just write: **tasm.UNet** to define the UNet or replace it with any other model. If you want to define the Functional Model instead just append **.model()**, i.e. **tasm.UNet.model()**</p>
+A new feature makes it possible to define the model as a Subclassed Model or as a Functional Model instead. To define the model as a Subclassed Model just write: **tasm.UNet** to define the UNet or replace it with any other model. If you want to define the Functional Model instead just append **.model()**, i.e. **tasm.UNet.model()**. This provides further TensorFlow features like saving the model in the "tf" format.
 
 ## Citing
 
