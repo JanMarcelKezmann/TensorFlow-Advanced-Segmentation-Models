@@ -126,16 +126,18 @@ class AtrousSeparableConvolutionBnReLU(tf.keras.layers.Layer):
     def build(self, input_shape):
         in_channels = input_shape[-1]
         self.dw_filter = self.add_weight(
-            name="kernel",
+            name="dw_kernel",
             shape=[self.kernel_size, self.kernel_size, in_channels, self.channel_multiplier],
             initializer=tf.keras.initializers.GlorotNormal(),
-            regularizer=tf.keras.regularizers.l2(l=1e-4)
+            regularizer=tf.keras.regularizers.l2(l=1e-4),
+            trainable=True
         )
         self.pw_filter = self.add_weight(
-            name="kernel",
+            name="pw_kernel",
             shape=[1, 1, in_channels * self.channel_multiplier, self.filters],
             initializer=tf.keras.initializers.GlorotNormal(),
-            regularizer=tf.keras.regularizers.l2(l=1e-4)
+            regularizer=tf.keras.regularizers.l2(l=1e-4),
+            trainable=True
         )
 
         self.bn = tf.keras.layers.BatchNormalization(
