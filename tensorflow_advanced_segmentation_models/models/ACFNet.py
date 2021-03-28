@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 from ._custom_layers_and_blocks import ConvolutionBnActivation, AtrousSpatialPyramidPoolingV3, AttCF_Module
 from ..backbones.tf_backbones import create_base_model
