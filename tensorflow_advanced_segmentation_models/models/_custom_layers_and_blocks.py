@@ -952,6 +952,7 @@ class SpatialOCR_Module(tf.keras.layers.Layer):
         output = self.dropout(output, training=training)                            # (BS, H, W, C)
 
         return output
+        
 
 class SpatialOCR_ASP_Module(tf.keras.layers.Layer):
     def __init__(self, filters, scale=1, dropout=0.1, dilations=(12, 24, 36)):
@@ -990,6 +991,7 @@ class SpatialOCR_ASP_Module(tf.keras.layers.Layer):
         output = self.dropout(output, training=training)
 
         return output
+
 
 class AttCF_Module(tf.keras.layers.Layer):
     def __init__(self, filters):
@@ -1041,3 +1043,137 @@ class AttCF_Module(tf.keras.layers.Layer):
             output = self.conv1x1(output)
 
         return output
+
+
+class BasicBlock(tf.keras.layers.Layer):
+    def __init__(self, filters):
+        super(BasicBlock, self).__init__()
+
+        self.conv3x3_bn_relu = ConvolutionBnActivation(filters, (3, 3), momentum=0.1)
+        self.conv3x3_bn = ConvolutionBnActivation(filters, (3, 3), momentum=0.1, post_activation="linear")
+
+        self.relu = tf.keras.layers.Activation("relu")
+
+    def call(self, input, training=None):
+        residual = input
+
+        out = self.conv3x3_bn_relu(input, training=training)
+        out = self.conv3x3_bn(out, training=training)
+
+        out = out + residual
+        out = self.relu(out)
+
+        return out
+
+
+class BottleneckBlock(tf.keras.layers.Layer):
+    def __init__(self, filters, downsample=False, expansion=4):
+        super(BottleneckBlock, self).__init__()
+
+        self.ds = downsample
+
+        self.conv3x3_bn_relu_1 = ConvolutionBnActivation(filters, (1, 1), momentum=0.1)
+        self.conv3x3_bn_relu_2 = ConvolutionBnActivation(filters, (3, 3), momentum=0.1)
+        self.conv3x3_bn = ConvolutionBnActivation(filters * expansion, (1, 1), momentum=0.1, post_activation="linear")
+
+        if downsample:
+            self.downsample = ConvolutionBnActivation(filters * expansion, (1, 1), momentum=0.1)
+
+        self.relu = tf.keras.layers.Activation("relu")
+
+    def call(self, input, training=None):
+        residual = input
+
+        out = self.conv3x3_bn_relu_1(input, training=training)
+        out = self.conv3x3_bn_relu_2(out, training=training)
+        out = self.conv3x3_bn(out, training=training)
+
+        if self.ds:
+            residual = self.downsample(input)
+
+        out = out + residual
+        out = self.relu(out)
+
+        return out
+
+
+class HighResolutionModule(tf.keras.layers.Layer):
+    def __init__(self, num_branches, blocks, filters):
+        # filters_in unnecessary since it equals filters
+        super(HighResolutionModule, self).__init__()
+
+        self.num_branches = num_branches
+        self.filters = filters
+        self.num_in_channels = filters[0]
+
+        self._check_branches(num_branches, blocks, filters)
+        
+        # Make Branches
+        self.branch_1 = tf.keras.Sequential([BasicBlock(filters[0]), BasicBlock(filters[0]), BasicBlock(filters[0]), BasicBlock(filters[0])])
+        self.branch_2 = tf.keras.Sequential([BasicBlock(filters[1]), BasicBlock(filters[1]), BasicBlock(filters[1]), BasicBlock(filters[1])])
+        self.branch_3 = tf.keras.Sequential([BasicBlock(filters[2]), BasicBlock(filters[2]), BasicBlock(filters[2]), BasicBlock(filters[2])]) if num_branches >= 3 else None
+        self.branch_4 = tf.keras.Sequential([BasicBlock(filters[3]), BasicBlock(filters[3]), BasicBlock(filters[3]), BasicBlock(filters[3])]) if num_branches >= 4 else None
+
+        self.fuse_layers = self._make_fuse_layers()
+        self.relu = tf.keras.layers.Activation("relu")
+
+    def _check_branches(self, num_branches, blocks, filters):
+        if num_branches != len(blocks):
+            raise ValueError("'num_branches' = {} is not equal to length of 'blocks' = {}".format(num_branches, len(blocks)))
+        
+        if num_branches != len(filters):
+            raise ValueError("'num_branches' = {} is not equal to length of 'filters' = {}".format(num_branches, len(filters)))
+
+    def _make_fuse_layers(self):
+        fuse_layers = []
+        for i in range(self.num_branches):
+            fuse_layer = []
+            for j in range(self.num_branches):
+                if j > i:
+                    fuse_layer.append(ConvolutionBnActivation(self.filters[i], (1, 1), momentum=0.1, post_activation="linear"))
+                elif j == i:
+                    fuse_layer.append(None)
+                else:
+                    conv3x3s = []
+                    for k in range(i - j):
+                        if k == i - j - 1:
+                            conv3x3s.append(ConvolutionBnActivation(self.filters[i], (3, 3), strides=(2, 2), momentum=0.1, post_activation="linear"))
+                        else:
+                            conv3x3s.append(ConvolutionBnActivation(self.filters[j], (3, 3), strides=(2, 2), momentum=0.1))
+                    fuse_layer.append(tf.keras.Sequential(conv3x3s))
+
+            fuse_layers.append(fuse_layer)
+
+        return fuse_layers
+
+    def call(self, input1, input2, input3, input4, training=None):
+        x_1 = self.branch_1(input1, training=training)
+        x_2 = self.branch_2(input2, training=training)
+        x_3 = self.branch_3(input3, training=training) if self.num_branches >= 3 else None
+        x_4 = self.branch_4(input4, training=training) if self.num_branches >= 4 else None
+        
+        x = [x_1, x_2]
+        if x_3 is not None:
+            x = [x_1, x_2, x_3]
+        if x_4 is not None:
+            x = [x_1, x_2, x_3, x_4]
+
+        x_fuse = []
+        for i in range(len(self.fuse_layers)):
+            y = x[0] if i == 0 else self.fuse_layers[i][0](x[0])
+            for j in range(1, self.num_branches):
+                if i == j:
+                    y += x[j]
+                elif j > i:
+                    f = self.fuse_layers[i][j](x[j])
+                    scale_factor = int(x[i].shape[-2] / f.shape[-2])
+                    if scale_factor > 1:
+                        y += tf.keras.layers.UpSampling2D(size=scale_factor, interpolation="bilinear")(f)
+                    else:
+                        y += f
+                else:
+                    y += self.fuse_layers[i][j](x[j])
+                
+            x_fuse.append(self.relu(y))
+
+        return x_fuse
