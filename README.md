@@ -14,7 +14,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 - 13 Segmentation Model Architectures for multi-class semantic segmentation
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses (Dice, Focal, Tversky, Jaccard and many more combinations of them)
-- Models can be used as Subclassed or Functional Model
+- **New:** Models can be used as Subclassed or Functional Model
 
 ## Table of Contents
 
