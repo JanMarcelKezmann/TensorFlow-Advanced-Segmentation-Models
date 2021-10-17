@@ -11,7 +11,8 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ### Main Library Features
 - High Level API
-- 13 Segmentation Model Architectures for multi-class semantic segmentation
+- 14 Segmentation Model Architectures for multi-class semantic segmentation
+  - **New:** HRNet + OCR Model
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses (Dice, Focal, Tversky, Jaccard and many more combinations of them)
 - **New:** Models can be used as Subclassed or Functional Model
@@ -130,6 +131,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">SpatialOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/SpatialOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ASPOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - <a href="https://arxiv.org/pdf/1909.09408.pdf">**ACFNet**</a> &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ACFNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
+- <a href="https://arxiv.org/pdf/1904.04514.pdf">**HRNet + OCR**</a> &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/HRNetOCR.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a> **NEW!**
     
 **Backbones**
 (For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
@@ -173,3 +175,4 @@ Project is distributed under <a href="https://github.com/JanMarcelKezmann/Tensor
  - Yuhui Yuan and Jingdong Wang, openseg.OCN.pytorch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/OCNet.pytorch
  - Yuhui Yuan and Xilin Chen and Jingdong Wang, openseg.pytotrch, 2020, GitHub, GitHub Repository, https://github.com/openseg-group/openseg.pytorch
  - Fan Zhang, Yanqin Chen, Zhihang Li, Zhibin Hong, Jingtuo Liu, Feifei Ma, Junyu Han, Errui Ding, 2020, GitHub, GitHub Repository, https://github.com/zrl4836/ACFNet
+ - Xie Jingyi, Ke Sun, Jingdong Wang, RainbowSecret, 2021, GitHub, GitHub Repository, https://github.com/HRNet/HRNet-Semantic-Segmentation
