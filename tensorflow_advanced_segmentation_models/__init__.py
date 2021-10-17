@@ -13,6 +13,7 @@ from .models.CFNet import CFNet
 from .models.ACFNet import ACFNet
 from .models.PSPNet import PSPNet
 from .models.DeepLab import DeepLab
+from .models.HRNetOCR import HRNetOCR
 from .models.DeepLabV3 import DeepLabV3
 from .models.ASPOCRNet import ASPOCRNet
 from .models.SpatialOCRNet import SpatialOCRNet
