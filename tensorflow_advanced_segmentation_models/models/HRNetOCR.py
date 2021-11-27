@@ -8,12 +8,14 @@ from ..backbones.tf_backbones import create_base_model
 # High Resolution Network + Object-Contextual Representations
 ################################################################################
 class HRNetOCR(tf.keras.Model):
-    def __init__(self, n_classes, filters=64, final_activation="softmax",
+    def __init__(self, n_classes, filters=64, height=None, width=None, final_activation="softmax",
                  spatial_ocr_scale=1, spatial_context_scale=1, **kwargs):
         super(HRNetOCR, self).__init__(**kwargs)
 
         self.n_classes = n_classes
         self.filters = filters
+        self.height = height
+        self.width = width
         self.final_activation = final_activation
         self.spatial_ocr_scale = spatial_ocr_scale
         self.spatial_context_scale = spatial_context_scale
@@ -139,5 +141,5 @@ class HRNetOCR(tf.keras.Model):
         return out
 
     def model(self):
-        x = tf.keras.layers.Input(shape=(HEIGHT, WIDTH, 3))
+        x = tf.keras.layers.Input(shape=(self.height, self.width, 3))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
