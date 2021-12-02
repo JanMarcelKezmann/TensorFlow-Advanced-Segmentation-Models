@@ -15,8 +15,12 @@ VERSION = None
 here = os.path.abspath(os.path.dirname(__file__))
 
 try:
-    with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-        REQUIRED = f.read().split('\n')
+    if sys.platform == 'darwin':
+        with open(os.path.join(here, 'requirements_macos.txt'), encoding='utf-8') as f:
+            REQUIRED = f.read().split('\n')
+    else:
+        with open(os.path.join(here, 'requirements_windows.txt'), encoding='utf-8') as f:
+            REQUIRED = f.read().split('\n')
 except:
     REQUIRED = []
     
