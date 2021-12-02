@@ -1,4 +1,4 @@
 tensorflow>=2.0.0; sys_platform!='darwin'
 tensorflow-macos>=2.5.0; sys_platform=='darwin'
-numpy
+numpy; sys_platform!='darwin'
 matplotlib
