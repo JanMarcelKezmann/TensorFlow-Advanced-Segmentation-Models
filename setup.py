@@ -8,7 +8,7 @@ NAME = 'tensorflow_advanced_segmentation_models'
 DESCRIPTION = 'A Python Library for High-Level Semantic Segmentation Models based on TensorFlow and Keras.'
 URL = 'https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models'
 EMAIL = 'jankezmann@t-online.de'
-AUTHOR = 'Jan-Marcel Kezmann'
+AUTHOR = 'Jan Marcel Kezmann'
 REQUIRES_PYTHON = '>=3.6.0'
 VERSION = None
 
