@@ -3,12 +3,9 @@ import tensorflow as tf
 ################################################################################
 # Backbone
 ################################################################################
-################################################################################
-# Backbone
-################################################################################
 def create_base_model(name="ResNet50", weights="imagenet", height=None, width=None,
-                      include_top=False, pooling=None, alpha=1.0, depth_multiplier=1.0):
-                    # , dropout=0.001):
+                      include_top=False, pooling=None, alpha=1.0, depth_multiplier=1, dropout=0.001):
+                      
     if not isinstance(height, int) or not isinstance(width, int):
         raise TypeError("'height' and 'width' need to be of type 'int'")
 
@@ -77,16 +74,16 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
     #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 75.")
     #     base_model = tf.keras.applications.InceptionV3(include_top=include_top, weights=weights, input_shape=[height, width, 3], pooling=pooling)
     #     layer_names = ["activation_814", "activation_816", "mixed2", "mixed7", "mixed10"]
-    # elif name.lower() == "mobilenet":
-    #     if height <= 31 or width <= 31:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
-    #     base_model = tf.keras.applications.MobileNet(include_top=include_top, weights=weights, input_shape=[height, width, 3], pooling=pooling, alpha=alpha, depth_multiplier=depth_multiplier, dropout=dropout)
-    #     layer_names = ["", "", "", "", ""]
-    # elif name.lower() == "mobilenetv2":
-    #     if height <= 31 or width <= 31:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
-    #     base_model = tf.keras.applications.MobileNetV2(include_top=include_top, weights=weights, input_shape=[height, width, 3], pooling=pooling, alpha=alpha, depth_multiplier=depth_multiplier, dropout=dropout)
-    #     layer_names = ["", "", "", "", ""]
+    elif name.lower() == "mobilenet":
+        if height <= 31 or width <= 31:
+            raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
+        base_model = tf.keras.applications.MobileNet(include_top=include_top, weights=weights, input_shape=[height, width, 3], pooling=pooling, alpha=alpha, depth_multiplier=depth_multiplier, dropout=dropout)
+        layer_names = ["conv_pw_1_relu", "conv_pw_3_relu", "conv_pw_5_relu", "conv_pw_11_relu", "conv_pw_13_relu"]
+    elif name.lower() == "mobilenetv2":
+        if height <= 31 or width <= 31:
+            raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
+        base_model = tf.keras.applications.MobileNetV2(include_top=include_top, weights=weights, input_shape=[height, width, 3], pooling=pooling, alpha=alpha)
+        layer_names = ["block_1_expand_relu", "block_3_expand_relu", "block_6_expand_relu", "block_13_expand_relu", "out_relu"]
     # elif name.lower() == "nasnetlarge":
     #     if height <= 31 or width <= 31:
     #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
@@ -144,9 +141,9 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
         layer_names = ["block2_sepconv2_act", "block3_sepconv2_act", "block4_sepconv2_act", "block13_sepconv2_act", "block14_sepconv2_act"]
     else:
         raise ValueError("'name' should be one of 'densenet121', 'densenet169', 'densenet201', 'efficientnetb0', 'efficientnetb1', 'efficientnetb2', \
-                'efficientnetb3', 'efficientnetb4', 'efficientnetb5', 'efficientnetb6', 'efficientnetb7', \
+                'efficientnetb3', 'efficientnetb4', 'efficientnetb5', 'efficientnetb6', 'efficientnetb7', 'mobilenet', 'mobilenetv2', \
                 'resnet50', 'resnet50v2', 'resnet101', 'resnet101v2', 'resnet152', 'resnet152v2', 'vgg16', 'vgg19' or 'xception'.")
-        # 'inceptionresnetv2', 'inceptionv3', 'mobilenet', 'mobilenetv2', 'nasnetlarge', 'nasnetmobile', \
+        # 'inceptionresnetv2', 'inceptionv3', 'nasnetlarge', 'nasnetmobile', \
 
     layers = [base_model.get_layer(layer_name).output for layer_name in layer_names]
 
