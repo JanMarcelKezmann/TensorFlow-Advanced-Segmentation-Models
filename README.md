@@ -7,7 +7,8 @@ A Python Library for High-Level Semantic Segmentation Models.
 
 ## Preface
 <p>Since the breakthrough of Deep Learning and Computer Vision was always one of the core problems that researcher all over the world have worked on, to create better models every day. One Computer Vision area that got huge attention in the last couple of years is Semantic Segmentation. The task to segment every pixel on a given image led to the invention of many great models starting with the classical U-Net up to now more and more complex neural network structures. But even though many new algorithms were developed, the distribution of easy to use open source libraries which contain High-Level APIs that make the technology accessible for everyone is still far behind the huge amount of research that is published continuously.</p>
-<p>Inspired by <a href="https://github.com/qubvel">qubvel's</a> <a href="https://github.com/qubvel/segmentation_models">segmentation_models</a> this repository builds upon his work and extends it by a variety of recently developed models which achieved great results on the <a href="https://www.cityscapes-dataset.com/">Cityscapes</a>, <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/">PASCAL VOC 2012</a>, <a href="https://cs.stanford.edu/~roozbeh/pascal-context/">PASCAL Context</a>, <a href="https://groups.csail.mit.edu/vision/datasets/ADE20K/">ADE20K</a> dataset and many more. An important new feature is the upgrade to Tensorflow 2.x including the use of the advanced model subclassing feauture to build customized segmentation models.</p>
+<p>Inspired by <a href="https://github.com/qubvel">qubvel's</a> <a href="https://github.com/qubvel/segmentation_models">segmentation_models</a> this repository builds upon his work and extends it by a variety of recently developed models which achieved great results on the <a href="https://www.cityscapes-dataset.com/">Cityscapes</a>, <a href="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/">PASCAL VOC 2012</a>, <a href="https://cs.stanford.edu/~roozbeh/pascal-context/">PASCAL Context</a>, <a href="https://groups.csail.mit.edu/vision/datasets/ADE20K/">ADE20K</a> dataset and many more.</p>
+<p>The library contains to date 14 different Semantic Segmentation Model Architecters for multi-class semantic segmentation as well as many on imagenet pretrained backbones. An important new feature is the upgrade to Tensorflow 2.x including the use of the advanced model subclassing feauture to build customized segmentation models. Further are now all system platforms compatible with the library this means that tasm can run on Windows, Linux and MacOS as well.</p>
 
 ### Main Library Features
 - High Level API
@@ -16,6 +17,7 @@ A Python Library for High-Level Semantic Segmentation Models.
 - Many already pretrained backbones for each architecture
 - Many useful segmentation losses (Dice, Focal, Tversky, Jaccard and many more combinations of them)
 - **New:** Models can be used as Subclassed or Functional Model
+- **New:** TASM works now on all platforms, i.e. Windows, Linux, MacOS with Intel or Apple Silicon Chips
 
 ## Table of Contents
 
@@ -32,9 +34,17 @@ A Python Library for High-Level Semantic Segmentation Models.
 <p>To get the repository running just check the following requirements.</p>
 
 **Requirements**
+**Windows or Linus**
 1) Python 3.6 or higher
 2) tensorflow >= 2.3.0 (>= 2.0.0 is sufficient if no efficientnet backbone is used)
 3) numpy
+4) matplotlib
+
+**MacOS**
+1) Python 3.9 or higher
+2) tensorflow-macos >= 2.5.0
+3) numpy >= 1.21.0
+4) matplotlib
 
 <p>Furthermore just execute the following command to download and install the git repository.</p>
 
@@ -141,6 +151,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 |**VGG**          | ``'vgg16' 'vgg19'``|
 |**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
 |**Xception**     | ``'xception'``|
+|**MobileNet**    | ``'mobilenet' 'mobilenetv2'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
