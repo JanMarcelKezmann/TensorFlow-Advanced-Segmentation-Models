@@ -6,6 +6,9 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
                       depth_multiplier=1, dropout=0.001):
     if not isinstance(height, int) or not isinstance(width, int) or not isinstance(channels, int):
         raise TypeError("'height', 'width' and 'channels' need to be of type 'int'")
+        
+    if channels <= 0:
+        raise ValueError(f"'channels' must be greater of equal to 1 but given was {channels}")
     
     input_shape = [height, width, channels]
 
