@@ -67,16 +67,6 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
             raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
         base_model = tf.keras.applications.EfficientNetB7(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
         layer_names = ["block2a_expand_activation", "block3a_expand_activation", "block4a_expand_activation", "block6a_expand_activation", "top_activation"]
-    # elif name.lower() == "inceptionresnetv2":
-    #     if height <= 74 or width <= 74:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 75.")
-    #     base_model = tf.keras.applications.InceptionResNetV2(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
-    #     layer_names = ["activation_611", "activation_613", "activation_683", "activation_769", "conv_7b_ac"]
-    # elif name.lower() == "inceptionv3":
-    #     if height <= 74 or width <= 74:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 75.")
-    #     base_model = tf.keras.applications.InceptionV3(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
-    #     layer_names = ["activation_814", "activation_816", "mixed2", "mixed7", "mixed10"]
     elif name.lower() == "mobilenet":
         if height <= 31 or width <= 31:
             raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
@@ -87,16 +77,16 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
             raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
         base_model = tf.keras.applications.MobileNetV2(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling, alpha=alpha)
         layer_names = ["block_1_expand_relu", "block_3_expand_relu", "block_6_expand_relu", "block_13_expand_relu", "out_relu"]
-    # elif name.lower() == "nasnetlarge":
-    #     if height <= 31 or width <= 31:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
-    #     base_model = tf.keras.applications.NASNetLarge(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
-    #     layer_names = ["", "", "", "", ""]
-    # elif name.lower() == "nasnetmobile":
-    #     if height <= 31 or width <= 31:
-    #         raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
-    #     base_model = tf.keras.applications.NASNetMobile(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
-    #     layer_names = ["", "", "", "", ""]
+    elif name.lower() == "nasnetlarge":
+        if height <= 31 or width <= 31:
+            raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
+        base_model = tf.keras.applications.NASNetLarge(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
+        layer_names = ["zero_padding2d", "cropping2d_1", "cropping2d_2", "cropping2d_3", "activation_650"]
+    elif name.lower() == "nasnetmobile":
+        if height <= 31 or width <= 31:
+            raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
+        base_model = tf.keras.applications.NASNetMobile(include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling)
+        layer_names =["zero_padding2d_4", "cropping2d_5", "cropping2d_6", "cropping2d_7", "activation_838"]
     elif name.lower() == "resnet50":
         if height <= 31 or width <= 31:
             raise ValueError("Parameters 'height' and 'width' should not be smaller than 32.")
