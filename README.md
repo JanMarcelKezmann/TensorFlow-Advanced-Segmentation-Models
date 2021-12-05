@@ -152,6 +152,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 |**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
 |**Xception**     | ``'xception'``|
 |**MobileNet**    | ``'mobilenet' 'mobilenetv2'``|
+|**NASNet**       | ``'nasnetlarge' 'nasnetmobile'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
     
