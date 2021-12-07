@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 ################################################################################
 # Backbone
 ################################################################################
@@ -134,10 +136,9 @@ def create_base_model(name="ResNet50", weights="imagenet", height=None, width=No
         layer_names = ["block2_sepconv2_act", "block3_sepconv2_act", "block4_sepconv2_act", "block13_sepconv2_act", "block14_sepconv2_act"]
     else:
         raise ValueError("'name' should be one of 'densenet121', 'densenet169', 'densenet201', 'efficientnetb0', 'efficientnetb1', 'efficientnetb2', \
-                'efficientnetb3', 'efficientnetb4', 'efficientnetb5', 'efficientnetb6', 'efficientnetb7','mobilenet', 'mobilenetv2', \
+                'efficientnetb3', 'efficientnetb4', 'efficientnetb5', 'efficientnetb6', 'efficientnetb7','mobilenet', 'mobilenetv2', 'nasnetlarge', 'nasnetmobile', \
                 'resnet50', 'resnet50v2', 'resnet101', 'resnet101v2', 'resnet152', 'resnet152v2', 'vgg16', 'vgg19' or 'xception'.")
-        # 'inceptionresnetv2', 'inceptionv3', 'nasnetlarge', 'nasnetmobile', \
-
+    
     layers = [base_model.get_layer(layer_name).output for layer_name in layer_names]
 
     return base_model, layers, layer_names
