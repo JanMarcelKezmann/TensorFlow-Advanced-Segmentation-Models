@@ -883,7 +883,7 @@ class ObjectAttentionBlock2D(tf.keras.layers.Layer):
             ctx = tf.keras.layers.Permute((2, 1))(ctx)
             BS, H, W, C = feats.shape
             if self.scale > 1:
-                x = self.pool(x, training=training)
+                feats = self.pool(feats, training=training)
 
             query = self.f_pixel(feats, training=training)              # (BS, H, W, C)
             query = tf.keras.layers.Reshape((-1, C))(query)             # (BS, N, C)
@@ -906,7 +906,7 @@ class ObjectAttentionBlock2D(tf.keras.layers.Layer):
             # feats-dim: (BS, C, H, W) & ctx-dim: (BS, C, C2)
             BS, C, H, W = feats.shape
             if self.scale > 1:
-                x = self.pool(x, training=training)
+                feats = self.pool(feats, training=training)
 
             query = self.f_pixel(feats, training=training)              # (BS, C, H, W)
             query = tf.keras.layers.Reshape((C, -1))(query)             # (BS, C, N)
