@@ -28,7 +28,7 @@ class DeepLabV3(tf.keras.Model):
             self.dilations = [2 * rate for rate in dilations]
         elif self.output_stride == 16:
             self.final_upsampling2d = tf.keras.layers.UpSampling2D(size=16, interpolation="bilinear")
-            self.output_layers = self.output_layers[:4]
+            output_layers = output_layers[:4]
             self.dilations = dilations
         else:
             raise ValueError("'output_stride' must be one of (8, 16), got {}".format(self.output_stride))
