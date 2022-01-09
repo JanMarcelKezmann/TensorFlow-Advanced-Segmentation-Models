@@ -941,7 +941,7 @@ class SpatialOCR_Module(tf.keras.layers.Layer):
         axis = 3 if K.image_data_format() == "channels_last" else 1
         self.concat = tf.keras.layers.Concatenate(axis=axis)
         self.conv1x1_bn_relu = ConvolutionBnActivation(filters, (1, 1))
-        self.dropout = tf.keras.layers.Layer(dropout)
+        self.dropout = tf.keras.layers.Dropout(dropout)
 
     def call(self, features, ocr_context, training=None):
         # features-dim: (BS, H, W, C) & ocr_context-dim: (BS, C, C2) (if K.image_data_format() == "channels_last")
@@ -975,7 +975,7 @@ class SpatialOCR_ASP_Module(tf.keras.layers.Layer):
         self.concat = tf.keras.layers.Concatenate(axis=self.axis)
 
         self.conv1x1_bn_relu_2 = ConvolutionBnActivation(filters, (1, 1))
-        self.dropout = tf.keras.layers.Layer(dropout)
+        self.dropout = tf.keras.layers.Dropout(dropout)
     
     def call(self, x, probabilities, training=None):
         feat1 = self.conv3x3_bn_relu_1(x, training=training)
