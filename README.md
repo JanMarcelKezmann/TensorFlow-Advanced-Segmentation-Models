@@ -80,13 +80,13 @@ WIDTH = 320
 Load the data
 
 ```python
-X_train, y_train, X_val, y_val = get_data(...)
+TrainingGenerator, ValidationGenerator = get_data(...)
 ```
 
 Create the base model that works as backbone for the segmentation model:
 
 ```python
-base_model, layers, layer_names = tasm.create_base_model(name=BACKBONE_NAME, weights=WEIGHTS, height=HEIGHT, width=WIDTH, include_top=False, pooling=None)
+base_model, layers, layer_names = tasm.create_base_model(name=BACKBONE_NAME, weights=WEIGHTS, height=HEIGHT, width=WIDTH)
 ```
 
 Define a Model and compile it with an appropriate loss:
@@ -107,11 +107,10 @@ Now finally train the model:
 
 ```python
 history = model.fit(
-    x=X_train,
-    y=y_train,
+    TrainingGenerator
     batch_size=8,
     epochs=50,
-    validation_data(x_val, y_val)
+    validation_data=ValidationGenerator
 )
 ```
  
@@ -119,6 +118,7 @@ You can use the fit_generator method too, e.g. if you want to apply augmentation
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
 
 ## Examples
+
 - [Jupyter Notebook] Multi-class (3 classes) segmentation (sky, building, background) on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_1.ipynb">here</a>
 - [Jupyter Notebook] Multi-class (11 classes) segmentation on CamVid dataset <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_2.ipynb">here</a>
 - [Jupyter Notebook] Multi-class (11 classes) segmentation on CamVid dataset with a custom training loop<a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples/TASM_Example_3.ipynb">here</a>
