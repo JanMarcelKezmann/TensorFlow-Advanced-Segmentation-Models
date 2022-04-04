@@ -61,7 +61,7 @@ def precision(y_true, y_pred, class_weights=1., smooth=1e-5, threshold=None):
     fp = K.sum(y_pred, axis=axes) - tp
 
     score = (tp + smooth) / (tp + fp + smooth)
-    score = average(sccore, class_weights)
+    score = average(score, class_weights)
 
     return score
 
@@ -74,7 +74,7 @@ def recall(y_true, y_pred, class_weights=1., smooth=1e-5, threshold=None):
     fn = K.sum(y_true, axis=axes) - tp
 
     score = (tp + smooth) / (tp + fn + smooth)
-    score = average(sccore, class_weights)
+    score = average(score, class_weights)
 
     return score
 
