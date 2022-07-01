@@ -4,6 +4,9 @@ import tensorflow.keras.backend as K
 ################################################################################
 # Layers
 ################################################################################
+from tensorflow.keras import activations
+
+
 class ConvolutionBnActivation(tf.keras.layers.Layer):
     """
     """
@@ -12,8 +15,8 @@ class ConvolutionBnActivation(tf.keras.layers.Layer):
                  groups=1, activation=None, kernel_initializer="glorot_uniform", bias_initializer="zeros", kernel_regularizer=None,
                  bias_regularizer=None, activity_regularizer=None, kernel_constraint=None, bias_constraint=None, use_batchnorm=False, 
                  axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True, trainable=True,
-                 post_activation="relu", block_name=None):
-        super(ConvolutionBnActivation, self).__init__()
+                 post_activation="relu", block_name=None, **kwargs):
+        super(ConvolutionBnActivation, self).__init__(**kwargs)
 
 
         # 2D Convolution Arguments
@@ -46,7 +49,8 @@ class ConvolutionBnActivation(tf.keras.layers.Layer):
         self.conv = None
         self.bn = None
         #tf.keras.layers.BatchNormalization(scale=False, momentum=0.9)
-        self.post_activation = tf.keras.layers.Activation(post_activation)
+        # self.post_activation = tf.keras.layers.Activation(post_activation)
+        self.post_activation = activations.get(post_activation)
 
     def build(self, input_shape):
         self.conv = tf.keras.layers.Conv2D(
@@ -89,6 +93,49 @@ class ConvolutionBnActivation(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         print(input_shape)
         return [input_shape[0], input_shape[1], input_shape[2], self.filters]
+
+    def get_config(self):
+        config = {
+            "filters": self.filters,
+            "kernel_size": self.kernel_size,
+            "strides": self.strides,
+            "padding": self.padding,
+            "data_format": self.data_format,
+            "dilation_rate": self.dilation_rate,
+            "activation": activations.serialize(self.activation),
+            "use_batchnorm": not self.use_bias,
+            "kernel_initializer": self.kernel_initializer,
+            "bias_initializer": self.bias_initializer,
+            "kernel_regularizer": self.kernel_regularizer,
+            "bias_regularizer": self.bias_regularizer,
+            "activity_regularizer": self.activity_regularizer,
+            "kernel_constraint": self.kernel_constraint,
+            "bias_constraint": self.bias_constraint,
+            # Batch Normalization Arguments
+            "axis": self.axis,
+            "momentum": self.momentum,
+            "epsilon": self.epsilon,
+            "center": self.center,
+            "scale": self.scale,
+            "trainable": self.trainable,
+            "block_name": self.block_name,
+
+
+        # self.use_bias = not (use_batchnorm)
+        #
+        #
+        #
+        #
+        # self.conv = None
+        # self.bn = None
+
+
+        # tf.keras.layers.BatchNormalization(scale=False, momentum=0.9)
+        # self.post_activation = tf.keras.layers.Activation(post_activation)
+            "post_activation": activations.serialize(self.post_activation),
+        }
+        base_config = super(ConvolutionBnActivation, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
 class AtrousSeparableConvolutionBnReLU(tf.keras.layers.Layer):
     """
@@ -214,9 +261,10 @@ class AtrousSpatialPyramidPoolingV3(tf.keras.layers.Layer):
 class Upsample_x2_Block(tf.keras.layers.Layer):
     """
     """
-    def __init__(self, filters, trainable=None):
-        super(Upsample_x2_Block, self).__init__()
+    def __init__(self, filters, trainable=None, **kwargs):
+        super(Upsample_x2_Block, self).__init__(**kwargs)
         self.trainable = trainable
+        self.filters = filters
 
         self.upsample2d_size2 = tf.keras.layers.UpSampling2D(size=2, interpolation="bilinear")
         self.conv2x2_bn_relu = tf.keras.layers.Conv2D(filters, kernel_size=(2, 2), padding="same")
@@ -241,6 +289,14 @@ class Upsample_x2_Block(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         print(input_shape)
         return [input_shape[0], input_shape[1] * 2, input_shape[2] * 2, input_shape[3]]
+
+    def get_config(self):
+        config = {
+            "filters": self.filters,
+            "trainable": self.trainable,
+        }
+        base_config = super(Upsample_x2_Block, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
 class Upsample_x2_Add_Block(tf.keras.layers.Layer):
     """
@@ -1177,3 +1233,23 @@ class HighResolutionModule(tf.keras.layers.Layer):
             x_fuse.append(self.relu(y))
 
         return x_fuse
+
+
+custom_objects = {
+    'ConvolutionBnActivation': ConvolutionBnActivation,
+    'AtrousSeparableConvolutionBnReLU': AtrousSeparableConvolutionBnReLU,
+    'AtrousSpatialPyramidPoolingV3': AtrousSpatialPyramidPoolingV3,
+    'Upsample_x2_Block': Upsample_x2_Block,
+    'Upsample_x2_Add_Block': Upsample_x2_Add_Block,
+    'SpatialContextBlock': SpatialContextBlock,
+    'FPNBlock': FPNBlock,
+    'AtrousSpatialPyramidPoolingV1': AtrousSpatialPyramidPoolingV1,
+    'Base_OC_Module': Base_OC_Module,
+    'Pyramid_OC_Module': Pyramid_OC_Module,
+    'ASP_OC_Module': ASP_OC_Module,
+    'PAM_Module': PAM_Module,
+    'CAM_Module': CAM_Module,
+    'SelfAttentionBlock2D': SelfAttentionBlock2D,
+}
+
+tf.keras.utils.get_custom_objects().update(custom_objects)
