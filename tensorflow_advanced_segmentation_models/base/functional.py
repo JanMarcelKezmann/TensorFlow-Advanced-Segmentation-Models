@@ -112,6 +112,7 @@ def binary_crossentropy(y_true, y_pred):
 
 def categorical_focal_loss(y_true, y_pred, gamma=2.0, alpha=0.25):
     y_true, y_pred = gather_channels(y_true, y_pred)
+    y_true = K.cast(y_true, K.floatx())
     y_pred = K.clip(y_pred, K.epsilon(), 1.0 - K.epsilon())
 
     loss = - y_true * (alpha * K.pow((1 - y_pred), gamma) * K.log(y_pred))
