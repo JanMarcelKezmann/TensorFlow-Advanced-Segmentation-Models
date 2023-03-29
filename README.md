@@ -63,11 +63,11 @@ Please check that **Tensorflow** is installed on your computer.
 
 To import the library just use the standard python import statement:
 
-   
+
 ```python
 import tensorflow_advanced_segmentation_models as tasm
 ```
-      
+
 Then pick any model backbone from the list below and define weights, height and width:
 
 ```python
@@ -90,7 +90,7 @@ base_model, layers, layer_names = tasm.create_base_model(name=BACKBONE_NAME, wei
 ```
 
 Define a Model and compile it with an appropriate loss:
- 
+
 ```python
 model = tasm.DANet(n_classes=3, base_model=base_model, output_layers=layers, backbone_trainable=False)
 model.compile(tf.keras.optimizers.Adam(0.0001), loss=tasm.losses.CategoricalFocalLoss, tasm.metrics.IOUScore(threshold=0.5))
@@ -113,7 +113,7 @@ history = model.fit(
     validation_data=ValidationGenerator
 )
 ```
- 
+
 You can use the fit_generator method too, e.g. if you want to apply augmentations to the data.
 For complete training pipelines, go to the <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/examples">Examples</a> folder
 
@@ -142,7 +142,7 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 - **<a href="https://arxiv.org/pdf/1909.11065.pdf">ASPOCRNet</a>** &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ASPOCRNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - <a href="https://arxiv.org/pdf/1909.09408.pdf">**ACFNet**</a> &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/ACFNet.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a>
 - <a href="https://arxiv.org/pdf/1904.04514.pdf">**HRNet + OCR**</a> &nbsp; <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/tensorflow_advanced_segmentation_models/models/HRNetOCR.py"><img align="center" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/code-280-460136.png" /></a> **NEW!**
-    
+
 **Backbones**
 (For Details see <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/tree/master/tensorflow_advanced_segmentation_models/backbones">here</a>.)
 
@@ -151,14 +151,14 @@ For complete training pipelines, go to the <a href="https://github.com/JanMarcel
 |**VGG**          | ``'vgg16' 'vgg19'``|
 |**ResNet**       | ``'resnet50' 'resnet50v2' 'resnet101' 'resnet101v2' 'resnet152' 'resnet152v2'``|
 |**Xception**     | ``'xception'``|
-|**MobileNet**    | ``'mobilenet' 'mobilenetv2'``|
+|**MobileNet**    | ``'mobilenet' 'mobilenetv2'  'mobilenetv3small'``|
 |**NASNet**       | ``'nasnetlarge' 'nasnetmobile'``|
 |**DenseNet**     | ``'densenet121' 'densenet169' 'densenet201'``|
 |**EfficientNet** | ``'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3' 'efficientnetb4' 'efficientnetb5' 'efficientnetb6' efficientnetb7'``|
-    
+
 
     All backbones have weights trained on 2012 ILSVRC ImageNet dataset.
-    
+
 **Further Model Information**
 
 A new feature makes it possible to define the model as a Subclassed Model or as a Functional Model instead. To define the model as a Subclassed Model just write: **tasm.UNet** to define the UNet or replace it with any other model. If you want to define the Functional Model instead just append **.model()**, i.e. **tasm.UNet.model()**. This provides further TensorFlow features like saving the model in the "tf" format.
@@ -172,8 +172,8 @@ A new feature makes it possible to define the model as a Subclassed Model or as 
       Publisher = {GitHub},
       Journal = {GitHub repository},
       Howpublished = {\url{https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models}}
-    } 
-    
+    }
+
 ## License
 
 Project is distributed under <a href="https://github.com/JanMarcelKezmann/TensorFlow-Advanced-Segmentation-Models/blob/master/LICENSE">MIT License</a>.
